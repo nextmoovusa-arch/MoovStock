@@ -1,5 +1,5 @@
-// MoovStock — Sprint 1 schema
-// Extensions à venir: Supply, SupplyMovement, DailyLog, Transaction, Alert
+// MoovStock — Sprint 1 + 2 schema
+// Extensions à venir: Supply, SupplyMovement, Transaction
 
 generator client {
   provider = "prisma-client-js"
@@ -30,6 +30,20 @@ enum PaymentStatus {
   SETTLED
 }
 
+enum AlertType {
+  INACTIVITY        // n'a pas saisi DailyLog depuis X jours
+  GOAL_MISSED       // objectif quotidien non atteint
+  LOW_STOCK         // consommable bas (Sprint 3)
+  RESTOCK_NOW       // rachat urgent (Sprint 3)
+  STOCK_MISMATCH    // ventes vs pochettes utilisées incohérent
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
 model User {
   id              String   @id @default(cuid())
   clerkId         String   @unique
@@ -45,8 +59,50 @@ model User {
 
   items           Item[]
   sales           Sale[]   @relation("ResellerSales")
+  dailyLogs       DailyLog[]
+  alerts          Alert[]
 
   @@index([role])
+}
+
+model DailyLog {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date            DateTime @db.Date  // date du jour (sans heure)
+
+  itemsListed     Int      @default(0)
+  itemsSold       Int      @default(0)
+  pouchesUsed     Int      @default(0)
+  labelsUsed      Int      @default(0)
+
+  issues          String?  // problèmes : imprimante, colis annulé, etc.
+
+  submittedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model Alert {
+  id          String         @id @default(cuid())
+  userId      String?        // null = alerte globale (admin only)
+  user        User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        AlertType
+  severity    AlertSeverity  @default(WARNING)
+  message     String
+
+  // métadonnées libres pour contextualiser (ex: { goal: 10, achieved: 4 })
+  meta        Json?
+
+  createdAt   DateTime       @default(now())
+  resolvedAt  DateTime?
+
+  @@index([userId, resolvedAt])
+  @@index([type, resolvedAt])
 }
 
 model Item {

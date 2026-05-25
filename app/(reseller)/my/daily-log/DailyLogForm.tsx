@@ -1,0 +1,149 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+type Initial = {
+  itemsListed: number;
+  itemsSold: number;
+  pouchesUsed: number;
+  labelsUsed: number;
+  issues: string | null;
+};
+
+export function DailyLogForm({
+  date,
+  goal,
+  initial,
+}: {
+  date: string; // YYYY-MM-DD
+  goal: number;
+  initial?: Initial;
+}) {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    date,
+    itemsListed: initial?.itemsListed ?? 0,
+    itemsSold: initial?.itemsSold ?? 0,
+    pouchesUsed: initial?.pouchesUsed ?? 0,
+    labelsUsed: initial?.labelsUsed ?? 0,
+    issues: initial?.issues ?? "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [ok, setOk] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setErr(null);
+    setOk(false);
+    const res = await fetch("/api/daily-log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    setLoading(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setErr(data.error || "Erreur");
+      return;
+    }
+    setOk(true);
+    router.refresh();
+  }
+
+  const goalHit = form.itemsListed >= goal;
+  const mismatch = Math.abs(form.itemsSold - form.pouchesUsed) >= 3;
+
+  return (
+    <form onSubmit={submit} className="space-y-4 text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Num
+          label="Articles postés"
+          value={form.itemsListed}
+          onChange={(v) => setForm({ ...form, itemsListed: v })}
+          tone={goalHit ? "ok" : "warn"}
+          hint={`Obj. ${goal}`}
+        />
+        <Num
+          label="Articles vendus"
+          value={form.itemsSold}
+          onChange={(v) => setForm({ ...form, itemsSold: v })}
+        />
+        <Num
+          label="Pochettes utilisées"
+          value={form.pouchesUsed}
+          onChange={(v) => setForm({ ...form, pouchesUsed: v })}
+        />
+        <Num
+          label="Étiquettes utilisées"
+          value={form.labelsUsed}
+          onChange={(v) => setForm({ ...form, labelsUsed: v })}
+        />
+      </div>
+
+      <label className="block">
+        <span className="block text-xs text-slate-500 mb-1">Problèmes du jour (optionnel)</span>
+        <textarea
+          rows={3}
+          value={form.issues ?? ""}
+          onChange={(e) => setForm({ ...form, issues: e.target.value })}
+          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="Imprimante HS, colis annulé, perte..."
+        />
+      </label>
+
+      {mismatch && (
+        <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">
+          Écart ventes ({form.itemsSold}) vs pochettes ({form.pouchesUsed}) — c&apos;est normal ?
+        </div>
+      )}
+
+      {err && <div className="text-rose-600">{err}</div>}
+      {ok && <div className="text-emerald-600">Saisie enregistrée ✓</div>}
+
+      <div className="flex justify-end">
+        <button
+          disabled={loading}
+          className="rounded-md bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-800 disabled:opacity-50"
+        >
+          {loading ? "..." : initial ? "Mettre à jour" : "Enregistrer"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function Num({
+  label,
+  value,
+  onChange,
+  tone,
+  hint,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  tone?: "ok" | "warn";
+  hint?: string;
+}) {
+  const ring =
+    tone === "ok" ? "ring-emerald-200" : tone === "warn" ? "ring-amber-200" : "ring-transparent";
+  return (
+    <label className="block">
+      <span className="block text-xs text-slate-500 mb-1 flex items-center justify-between">
+        <span>{label}</span>
+        {hint && <span className="text-slate-400">{hint}</span>}
+      </span>
+      <input
+        type="number"
+        min="0"
+        step="1"
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
+        className={`w-full rounded-md border border-slate-300 px-3 py-2 tabular-nums ring-2 ${ring}`}
+      />
+    </label>
+  );
+}

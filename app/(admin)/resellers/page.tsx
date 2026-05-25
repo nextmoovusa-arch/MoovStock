@@ -42,10 +42,12 @@ export default async function ResellersPage() {
                 .filter((s) => s.paymentStatus === "PENDING")
                 .reduce((s, x) => s + x.resellerPayout, 0);
               return (
-                <tr key={r.id} className="border-t border-slate-100">
+                <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{r.name ?? "—"}</div>
-                    <div className="text-xs text-slate-500">{r.email}</div>
+                    <Link href={`/resellers/${r.id}`} className="block">
+                      <div className="font-medium">{r.name ?? "—"}</div>
+                      <div className="text-xs text-slate-500">{r.email}</div>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.items}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.sales}</td>

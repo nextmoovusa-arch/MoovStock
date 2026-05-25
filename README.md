@@ -75,9 +75,14 @@ Ouvre `http://localhost:3000` → tu seras redirigé vers `/sign-in`. Crée ton 
 ## Roadmap
 
 - ✅ **Sprint 1** — Auth Clerk, multi-rôles, CRUD articles + ventes, calcul profit.
-- ⏳ **Sprint 2** — DailyLog, objectifs par revendeur, alertes inactivité/objectif manqué.
+- ✅ **Sprint 2** — DailyLog, objectifs par revendeur, alertes (inactivité, objectif manqué, incohérence stock), édition revendeur, cron quotidien.
 - ⏳ **Sprint 3** — Stock consommables (pochettes, étiquettes) + algo de rachat intelligent.
 - ⏳ **Sprint 4** — Trésorerie (cash, dépenses, dettes revendeurs) + dashboard analytics avec graphs.
+
+### Cron Vercel (alertes automatiques)
+
+Le fichier `vercel.json` programme un scan d'alertes chaque jour à 20:00 UTC sur `/api/cron/alerts`.
+Ajoute `CRON_SECRET` dans les variables d'environnement Vercel (Vercel l'utilise comme `Authorization: Bearer ...`).
 
 ---
 
