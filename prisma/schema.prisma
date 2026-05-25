@@ -1,5 +1,5 @@
-// MoovStock — Sprint 1 + 2 schema
-// Extensions à venir: Supply, SupplyMovement, Transaction
+// MoovStock — Sprint 1 + 2 + 3 schema
+// Extensions à venir: Transaction (Sprint 4)
 
 generator client {
   provider = "prisma-client-js"
@@ -44,6 +44,20 @@ enum AlertSeverity {
   CRITICAL
 }
 
+enum SupplyType {
+  POUCH         // pochette d'envoi
+  LABEL_ROLL    // rouleau d'étiquettes (compté en étiquettes restantes)
+  PRINTER_INK   // encre / toner
+  OTHER
+}
+
+enum MovementReason {
+  RESTOCK         // rachat (delta positif)
+  CONSUMPTION     // utilisation depuis DailyLog (delta négatif)
+  MANUAL_ADJUST   // ajustement manuel (positif ou négatif)
+  LOSS            // perte
+}
+
 model User {
   id              String   @id @default(cuid())
   clerkId         String   @unique
@@ -61,8 +75,53 @@ model User {
   sales           Sale[]   @relation("ResellerSales")
   dailyLogs       DailyLog[]
   alerts          Alert[]
+  supplies        Supply[]
 
   @@index([role])
+}
+
+model Supply {
+  id                  String     @id @default(cuid())
+  userId              String
+  user                User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type                SupplyType
+  name                String?    // libellé custom : "Pochettes 25x35", "Étiquettes 60x40"
+
+  quantity            Int        @default(0)   // stock courant
+  unitCost            Float      @default(0)   // pour valoriser
+
+  restockThreshold    Int?       // override manuel (en unités) ; sinon calculé
+  restockLeadDays     Int        @default(3)   // délai de livraison fournisseur
+  safetyMarginDays    Int        @default(2)   // marge de sécurité
+
+  lastRestockedAt     DateTime?
+  active              Boolean    @default(true)
+
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  movements           SupplyMovement[]
+
+  @@index([userId, type, active])
+}
+
+model SupplyMovement {
+  id          String         @id @default(cuid())
+  supplyId    String
+  supply      Supply         @relation(fields: [supplyId], references: [id], onDelete: Cascade)
+
+  delta       Int            // + rachat / − consommation
+  reason      MovementReason
+  note        String?
+
+  // Trace facultative vers la saisie qui a déclenché la consommation
+  dailyLogId  String?
+
+  createdAt   DateTime       @default(now())
+
+  @@index([supplyId, createdAt])
+  @@index([dailyLogId])
 }
 
 model DailyLog {

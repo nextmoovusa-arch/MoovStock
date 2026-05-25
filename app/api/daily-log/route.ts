@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { checkGoalForLog, checkInactivity, checkStockMismatch } from "@/lib/alerts";
+import {
+  checkGoalForLog,
+  checkInactivity,
+  checkStockMismatch,
+  checkSupplyLevels,
+} from "@/lib/alerts";
+import { applyDailyLogConsumption } from "@/lib/supplies";
 
 const UpsertSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   itemsListed: z.number().int().min(0),
   itemsSold: z.number().int().min(0),
   pouchesUsed: z.number().int().min(0),
@@ -28,6 +34,11 @@ export async function POST(req: Request) {
   const d = parsed.data;
   const date = parseDay(d.date);
 
+  // Récupère l'ancien log pour calculer le delta de consommation
+  const previous = await prisma.dailyLog.findUnique({
+    where: { userId_date: { userId: user.id, date } },
+  });
+
   const log = await prisma.dailyLog.upsert({
     where: { userId_date: { userId: user.id, date } },
     create: {
@@ -48,11 +59,22 @@ export async function POST(req: Request) {
     },
   });
 
+  // Décrémentation auto des consommables
+  await applyDailyLogConsumption({
+    userId: user.id,
+    dailyLogId: log.id,
+    pouchesUsed: d.pouchesUsed,
+    labelsUsed: d.labelsUsed,
+    prevPouches: previous?.pouchesUsed ?? 0,
+    prevLabels: previous?.labelsUsed ?? 0,
+  });
+
   // Recalcul des alertes liées
   await Promise.all([
     checkInactivity(user),
     checkGoalForLog(user, { itemsListed: d.itemsListed, date }),
     checkStockMismatch(user),
+    checkSupplyLevels(user),
   ]);
 
   return NextResponse.json({ log });

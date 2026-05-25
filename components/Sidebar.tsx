@@ -30,7 +30,7 @@ export function Sidebar({
 }: {
   variant: "admin" | "reseller";
   userLabel: string;
-  badges?: { alerts?: number; dailyLogPending?: boolean };
+  badges?: { alerts?: number; dailyLogPending?: boolean; suppliesAlert?: boolean };
 }) {
   const pathname = usePathname();
 
@@ -57,6 +57,13 @@ export function Sidebar({
       icon: ClipboardList,
       badge: badges?.dailyLogPending ? "!" : undefined,
       badgeTone: "warning",
+    },
+    {
+      href: "/my/supplies",
+      label: "Mes consommables",
+      icon: Boxes,
+      badge: badges?.suppliesAlert ? "!" : undefined,
+      badgeTone: "danger",
     },
   ];
 

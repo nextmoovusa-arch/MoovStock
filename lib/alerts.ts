@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import type { AlertType, AlertSeverity, User } from "@prisma/client";
+import { analyzeSupply } from "./supplies";
 
 const INACTIVITY_THRESHOLD_DAYS = 2;
 
@@ -38,6 +39,66 @@ async function resolveAlerts(userId: string | null, type: AlertType) {
     where: { userId, type, resolvedAt: null },
     data: { resolvedAt: new Date() },
   });
+}
+
+const SUPPLY_LABEL: Record<string, string> = {
+  POUCH: "pochettes",
+  LABEL_ROLL: "étiquettes",
+  PRINTER_INK: "encre",
+  OTHER: "consommables",
+};
+
+/**
+ * Vérifie les supplies du revendeur : lève LOW_STOCK / RESTOCK_NOW si nécessaire.
+ */
+export async function checkSupplyLevels(user: Pick<User, "id" | "name" | "email">) {
+  const supplies = await prisma.supply.findMany({
+    where: { userId: user.id, active: true },
+  });
+
+  let anyRestock = false;
+  let anyLow = false;
+  const details: Array<{ type: string; quantity: number; daysRemaining: number | null }> = [];
+
+  for (const s of supplies) {
+    const a = await analyzeSupply(s);
+    if (a.critical || a.needsRestock) {
+      anyRestock = true;
+      details.push({ type: s.type, quantity: s.quantity, daysRemaining: a.daysRemaining });
+    } else if (a.daysRemaining !== null && a.daysRemaining < (s.restockLeadDays + s.safetyMarginDays) * 1.5) {
+      anyLow = true;
+      details.push({ type: s.type, quantity: s.quantity, daysRemaining: a.daysRemaining });
+    }
+  }
+
+  const label = user.name ?? user.email;
+
+  if (anyRestock) {
+    const parts = details
+      .map((d) => `${SUPPLY_LABEL[d.type] ?? d.type}: ${d.quantity}`)
+      .join(", ");
+    await openAlert({
+      userId: user.id,
+      type: "RESTOCK_NOW",
+      severity: "CRITICAL",
+      message: `${label} doit racheter maintenant (${parts}).`,
+      meta: { details },
+    });
+  } else {
+    await resolveAlerts(user.id, "RESTOCK_NOW");
+  }
+
+  if (anyLow && !anyRestock) {
+    await openAlert({
+      userId: user.id,
+      type: "LOW_STOCK",
+      severity: "WARNING",
+      message: `${label} a un stock qui baisse — anticiper le rachat.`,
+      meta: { details },
+    });
+  } else if (!anyLow) {
+    await resolveAlerts(user.id, "LOW_STOCK");
+  }
 }
 
 /**
@@ -146,6 +207,7 @@ export async function runAlertScan(): Promise<{ scanned: number }> {
   for (const u of resellers) {
     await checkInactivity(u);
     await checkStockMismatch(u);
+    await checkSupplyLevels(u);
   }
 
   return { scanned: resellers.length };

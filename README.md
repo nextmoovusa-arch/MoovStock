@@ -76,8 +76,19 @@ Ouvre `http://localhost:3000` → tu seras redirigé vers `/sign-in`. Crée ton 
 
 - ✅ **Sprint 1** — Auth Clerk, multi-rôles, CRUD articles + ventes, calcul profit.
 - ✅ **Sprint 2** — DailyLog, objectifs par revendeur, alertes (inactivité, objectif manqué, incohérence stock), édition revendeur, cron quotidien.
-- ⏳ **Sprint 3** — Stock consommables (pochettes, étiquettes) + algo de rachat intelligent.
+- ✅ **Sprint 3** — Supplies (pochettes/étiquettes/encre) + mouvements, décrémentation auto depuis DailyLog, alertes RESTOCK_NOW/LOW_STOCK, vue admin agrégée.
 - ⏳ **Sprint 4** — Trésorerie (cash, dépenses, dettes revendeurs) + dashboard analytics avec graphs.
+
+### Algo rachat
+
+```
+avgDaily       = sum(pouchesUsed | labelsUsed sur 7 j) / 7
+threshold      = avgDaily × (restockLeadDays + safetyMarginDays)   # ou override manuel
+needsRestock   = quantity ≤ threshold
+critical       = quantity / avgDaily < 1   # moins d'1 jour de stock
+```
+
+La consommation est décrémentée automatiquement quand un revendeur enregistre sa saisie quotidienne : le delta entre l&apos;ancienne et la nouvelle valeur crée un `SupplyMovement` sur le premier supply actif du type correspondant.
 
 ### Cron Vercel (alertes automatiques)
 
