@@ -77,7 +77,7 @@ Ouvre `http://localhost:3000` → tu seras redirigé vers `/sign-in`. Crée ton 
 - ✅ **Sprint 1** — Auth Clerk, multi-rôles, CRUD articles + ventes, calcul profit.
 - ✅ **Sprint 2** — DailyLog, objectifs par revendeur, alertes (inactivité, objectif manqué, incohérence stock), édition revendeur, cron quotidien.
 - ✅ **Sprint 3** — Supplies (pochettes/étiquettes/encre) + mouvements, décrémentation auto depuis DailyLog, alertes RESTOCK_NOW/LOW_STOCK, vue admin agrégée.
-- ⏳ **Sprint 4** — Trésorerie (cash, dépenses, dettes revendeurs) + dashboard analytics avec graphs.
+- ✅ **Sprint 4** — Trésorerie complète (Transaction multi-comptes, cash réel, paiements groupés revendeurs) + Analytics (CA & profit 12 mois, top catégories, par revendeur).
 
 ### Algo rachat
 
@@ -89,6 +89,28 @@ critical       = quantity / avgDaily < 1   # moins d'1 jour de stock
 ```
 
 La consommation est décrémentée automatiquement quand un revendeur enregistre sa saisie quotidienne : le delta entre l&apos;ancienne et la nouvelle valeur crée un `SupplyMovement` sur le premier supply actif du type correspondant.
+
+### Trésorerie
+
+```
+cashByAccount[a] = sum(signedAmount(tx) where tx.account = a)
+signedAmount(tx) = +tx.amount si INCOME, -tx.amount sinon
+totalCash        = sum(cashByAccount)
+cashRéel         = totalCash - sum(Sale.resellerPayout where paymentStatus = PENDING)
+```
+
+Quand tu cliques « Payer » sur la page `/finance/debts` :
+- Toutes les `Sale` PENDING du revendeur passent à `PAID_TO_RESELLER`
+- 1 `Transaction` `RESELLER_PAYOUT` par vente est créée, liée à la `Sale` (traçabilité)
+- Supprimer la transaction repasse la vente en PENDING
+
+### Extraction vers un repo séparé
+
+```bash
+# Crée d'abord le repo vide sur GitHub (ex: nextmoovusa-arch/moovstock)
+git subtree split --prefix=moovstock -b moovstock-export
+git push git@github.com:nextmoovusa-arch/moovstock.git moovstock-export:main
+```
 
 ### Cron Vercel (alertes automatiques)
 

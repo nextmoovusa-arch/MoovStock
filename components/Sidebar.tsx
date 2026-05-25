@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { eur } from "@/lib/format";
 import {
   LayoutDashboard,
   Users,
@@ -13,6 +14,7 @@ import {
   ClipboardList,
   Boxes,
   Bell,
+  BarChart3,
 } from "lucide-react";
 
 type Item = {
@@ -30,12 +32,13 @@ export function Sidebar({
 }: {
   variant: "admin" | "reseller";
   userLabel: string;
-  badges?: { alerts?: number; dailyLogPending?: boolean; suppliesAlert?: boolean };
+  badges?: { alerts?: number; dailyLogPending?: boolean; suppliesAlert?: boolean; debts?: number };
 }) {
   const pathname = usePathname();
 
   const ADMIN_ITEMS: Item[] = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/resellers", label: "Revendeurs", icon: Users },
     {
       href: "/alerts",
@@ -44,7 +47,13 @@ export function Sidebar({
       badge: badges?.alerts && badges.alerts > 0 ? badges.alerts : undefined,
       badgeTone: "danger",
     },
-    { href: "/finance", label: "Finance", icon: Wallet },
+    {
+      href: "/finance",
+      label: "Finance",
+      icon: Wallet,
+      badge: badges?.debts && badges.debts > 0 ? eur(badges.debts) : undefined,
+      badgeTone: "warning",
+    },
     { href: "/supplies", label: "Stock conso.", icon: Boxes },
   ];
 
@@ -98,7 +107,7 @@ export function Sidebar({
               {it.badge !== undefined && (
                 <span
                   className={cn(
-                    "text-[10px] font-semibold rounded-full px-1.5 py-0.5 min-w-[18px] text-center",
+                    "text-[10px] font-semibold rounded-full px-1.5 py-0.5 min-w-[18px] text-center whitespace-nowrap tabular-nums",
                     it.badgeTone === "danger" && "bg-rose-500 text-white",
                     it.badgeTone === "warning" && "bg-amber-400 text-amber-950",
                     (!it.badgeTone || it.badgeTone === "default") && "bg-slate-200 text-slate-700",

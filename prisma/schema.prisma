@@ -1,5 +1,4 @@
-// MoovStock — Sprint 1 + 2 + 3 schema
-// Extensions à venir: Transaction (Sprint 4)
+// MoovStock — Sprint 1 → 4 schema
 
 generator client {
   provider = "prisma-client-js"
@@ -58,6 +57,33 @@ enum MovementReason {
   LOSS            // perte
 }
 
+enum TransactionType {
+  INCOME           // recette diverse
+  EXPENSE          // dépense
+  RESELLER_PAYOUT  // reversement à un revendeur (sortie cash)
+  REFUND           // remboursement émis (sortie cash)
+}
+
+enum TransactionCategory {
+  STOCK_BUY        // achat de stock à revendre
+  SUPPLIES         // pochettes / étiquettes / encre
+  SHIPPING         // frais d'envoi non remboursés
+  AD               // publicité
+  PAYOUT           // commission revendeur
+  REFUND           // remboursement acheteur
+  EQUIPMENT        // imprimante, balance, etc.
+  TRANSPORT        // déplacements
+  OTHER
+}
+
+enum Account {
+  CASH
+  BANK
+  PAYPAL
+  REVOLUT
+  OTHER
+}
+
 model User {
   id              String   @id @default(cuid())
   clerkId         String   @unique
@@ -76,8 +102,36 @@ model User {
   dailyLogs       DailyLog[]
   alerts          Alert[]
   supplies        Supply[]
+  transactions    Transaction[]
 
   @@index([role])
+}
+
+model Transaction {
+  id            String              @id @default(cuid())
+
+  type          TransactionType
+  category      TransactionCategory @default(OTHER)
+  account       Account             @default(CASH)
+
+  amount        Float               // toujours positif ; le type indique l'impact cash
+  date          DateTime            @default(now())
+  note          String?
+
+  // Optionnels — pour relier à un revendeur / une vente
+  relatedUserId String?
+  relatedUser   User?               @relation(fields: [relatedUserId], references: [id], onDelete: SetNull)
+
+  relatedSaleId String?             @unique
+  relatedSale   Sale?               @relation(fields: [relatedSaleId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([date])
+  @@index([account])
+  @@index([type, category])
+  @@index([relatedUserId])
 }
 
 model Supply {
@@ -224,6 +278,8 @@ model Sale {
   paidAt          DateTime?
 
   notes           String?
+
+  payoutTransaction Transaction?
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
