@@ -1,0 +1,118 @@
+// MoovStock — Sprint 1 schema
+// Extensions à venir: Supply, SupplyMovement, DailyLog, Transaction, Alert
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  RESELLER
+}
+
+enum ItemStatus {
+  IN_STOCK
+  LISTED
+  SOLD
+  RETURNED
+  LOST
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID_TO_RESELLER
+  SETTLED
+}
+
+model User {
+  id              String   @id @default(cuid())
+  clerkId         String   @unique
+  email           String   @unique
+  name            String?
+  imageUrl        String?
+  role            Role     @default(RESELLER)
+  dailyGoalItems  Int      @default(5)
+  commissionRate  Float    @default(0.5) // 0..1, part reversée au revendeur
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items           Item[]
+  sales           Sale[]   @relation("ResellerSales")
+
+  @@index([role])
+}
+
+model Item {
+  id             String     @id @default(cuid())
+  userId         String     // revendeur propriétaire
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title          String
+  category       String?
+  brand          String?
+  size           String?
+  condition      String?    // "Neuf avec étiquette", "Très bon état", etc.
+
+  purchasePrice  Float      @default(0)
+  listingPrice   Float      @default(0)
+
+  photoUrl       String?
+  vintedUrl      String?
+
+  status         ItemStatus @default(IN_STOCK)
+  listedAt       DateTime?
+  soldAt         DateTime?
+
+  notes          String?
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  sale           Sale?
+
+  @@index([userId, status])
+  @@index([status])
+}
+
+model Sale {
+  id              String        @id @default(cuid())
+
+  itemId          String        @unique
+  item            Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  resellerId      String
+  reseller        User          @relation("ResellerSales", fields: [resellerId], references: [id], onDelete: Restrict)
+
+  soldPrice       Float
+  shippingFee     Float         @default(0) // payé par acheteur, pour info
+  vintedFee       Float         @default(0) // commission Vinted côté vendeur si applicable
+  pouchCost       Float         @default(0)
+  labelCost       Float         @default(0)
+  otherCost       Float         @default(0)
+
+  // Snapshot des calculs au moment de la vente
+  grossProfit     Float         @default(0) // soldPrice - purchasePrice - fees - consumables
+  resellerPayout  Float         @default(0) // ce qu'on doit au revendeur
+  netProfit       Float         @default(0) // grossProfit - resellerPayout (part admin)
+
+  buyerCountry    String?
+  soldAt          DateTime      @default(now())
+
+  paymentStatus   PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([resellerId, soldAt])
+  @@index([paymentStatus])
+}
