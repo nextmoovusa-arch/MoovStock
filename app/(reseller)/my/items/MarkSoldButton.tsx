@@ -4,7 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 
-export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggested: number }) {
+export function MarkSoldButton({
+  itemId,
+  suggested,
+  pouchCost,
+  labelCost,
+}: {
+  itemId: string;
+  suggested: number;
+  pouchCost: number;
+  labelCost: number;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -12,8 +22,8 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
   const [form, setForm] = useState({
     soldPrice: suggested || 0,
     vintedFee: 0,
-    pouchCost: Number(process.env.NEXT_PUBLIC_DEFAULT_POUCH_COST ?? 0.15),
-    labelCost: Number(process.env.NEXT_PUBLIC_DEFAULT_LABEL_COST ?? 0.05),
+    pouchCost: pouchCost,
+    labelCost: labelCost,
     otherCost: 0,
     shippingFee: 0,
     buyerCountry: "FR",
@@ -56,8 +66,18 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Field label="Prix vendu (€)" value={form.soldPrice} onChange={(v) => setForm({ ...form, soldPrice: v })} />
               <Field label="Frais Vinted (€)" value={form.vintedFee} onChange={(v) => setForm({ ...form, vintedFee: v })} />
-              <Field label="Pochette (€)" value={form.pouchCost} onChange={(v) => setForm({ ...form, pouchCost: v })} />
-              <Field label="Étiquette (€)" value={form.labelCost} onChange={(v) => setForm({ ...form, labelCost: v })} />
+              <Field
+                label="Pochette (€)"
+                value={form.pouchCost}
+                onChange={(v) => setForm({ ...form, pouchCost: v })}
+                hint={pouchCost > 0 ? "auto · coût unitaire stock" : "ajoute des pochettes dans Stock conso."}
+              />
+              <Field
+                label="Étiquette (€)"
+                value={form.labelCost}
+                onChange={(v) => setForm({ ...form, labelCost: v })}
+                hint={labelCost > 0 ? "auto · coût unitaire stock" : "ajoute des étiquettes dans Stock conso."}
+              />
               <Field label="Autres frais (€)" value={form.otherCost} onChange={(v) => setForm({ ...form, otherCost: v })} />
               <Field label="Port acheteur (€)" value={form.shippingFee} onChange={(v) => setForm({ ...form, shippingFee: v })} />
               <label className="col-span-2">
@@ -99,10 +119,12 @@ function Field({
   label,
   value,
   onChange,
+  hint,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
+  hint?: string;
 }) {
   return (
     <label>
@@ -115,6 +137,7 @@ function Field({
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         className="w-full rounded-md border-input border px-2 py-1.5 tabular-nums"
       />
+      {hint && <span className="block text-[10px] text-accent mt-0.5">{hint}</span>}
     </label>
   );
 }

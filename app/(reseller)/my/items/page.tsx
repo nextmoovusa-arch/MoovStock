@@ -13,11 +13,24 @@ export const dynamic = "force-dynamic";
 export default async function MyItemsPage() {
   const user = await requireUser();
 
-  const items = await prisma.item.findMany({
-    where: { userId: user.id },
-    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-    include: { sale: true },
-  });
+  const [items, pouchSupply, labelSupply] = await Promise.all([
+    prisma.item.findMany({
+      where: { userId: user.id },
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      include: { sale: true },
+    }),
+    prisma.supply.findFirst({
+      where: { userId: user.id, type: "POUCH", active: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.supply.findFirst({
+      where: { userId: user.id, type: "LABEL_ROLL", active: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
+  const pouchCost = pouchSupply?.unitCost ?? 0;
+  const labelCost = labelSupply?.unitCost ?? 0;
 
   const inStock = items.filter((i) => i.status === "IN_STOCK" || i.status === "LISTED");
   const sold = items.filter((i) => i.status === "SOLD");
@@ -71,7 +84,14 @@ export default async function MyItemsPage() {
                 <td className="px-4 py-3 text-muted">{dateFr(it.createdAt)}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-2">
-                    {it.status !== "SOLD" && <MarkSoldButton itemId={it.id} suggested={it.listingPrice} />}
+                    {it.status !== "SOLD" && (
+                      <MarkSoldButton
+                        itemId={it.id}
+                        suggested={it.listingPrice}
+                        pouchCost={pouchCost}
+                        labelCost={labelCost}
+                      />
+                    )}
                     <DeleteItemButton itemId={it.id} />
                   </div>
                 </td>

@@ -35,6 +35,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Article déjà vendu" }, { status: 409 });
   }
 
+  // Si le client n'a pas fourni de coût pochette/étiquette, on dérive depuis
+  // le stock du revendeur (Supply.unitCost du premier actif).
+  if (!d.pouchCost || d.pouchCost === 0) {
+    const s = await prisma.supply.findFirst({
+      where: { userId: item.userId, type: "POUCH", active: true },
+      orderBy: { createdAt: "asc" },
+    });
+    d.pouchCost = s?.unitCost ?? 0;
+  }
+  if (!d.labelCost || d.labelCost === 0) {
+    const s = await prisma.supply.findFirst({
+      where: { userId: item.userId, type: "LABEL_ROLL", active: true },
+      orderBy: { createdAt: "asc" },
+    });
+    d.labelCost = s?.unitCost ?? 0;
+  }
+
   const profit = computeProfit(item, d, item.user.commissionRate);
 
   const sale = await prisma.$transaction(async (tx) => {
