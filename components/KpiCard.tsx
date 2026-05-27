@@ -12,19 +12,21 @@ export function KpiCard({
   tone?: "default" | "positive" | "negative" | "warning";
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="relative rounded-xl border border-subtle bg-surface p-4 overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
       <div
         className={cn(
           "mt-2 text-2xl font-semibold tabular-nums",
-          tone === "positive" && "text-emerald-600",
-          tone === "negative" && "text-rose-600",
-          tone === "warning" && "text-amber-600",
+          tone === "positive" && "text-success",
+          tone === "negative" && "text-danger",
+          tone === "warning" && "text-warning",
+          tone === "default" && "text-foreground",
         )}
       >
         {value}
       </div>
-      {hint && <div className="mt-1 text-xs text-slate-500">{hint}</div>}
+      {hint && <div className="mt-1 text-xs text-muted">{hint}</div>}
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default async function MySuppliesPage() {
       />
 
       {supplies.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-lg border border-dashed border-input bg-surface p-10 text-center text-sm text-muted">
           Aucun consommable suivi. Ajoute-en pour activer les alertes de rachat.
         </div>
       ) : (

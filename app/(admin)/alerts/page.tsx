@@ -16,9 +16,9 @@ const TYPE_LABEL: Record<AlertType, string> = {
 };
 
 const SEV_CLS: Record<AlertSeverity, string> = {
-  INFO: "bg-slate-100 text-slate-700",
-  WARNING: "bg-amber-100 text-amber-700",
-  CRITICAL: "bg-rose-100 text-rose-700",
+  INFO: "bg-subtle text-foreground",
+  WARNING: "bg-warning/15 text-warning",
+  CRITICAL: "bg-danger/15 text-danger",
 };
 
 export default async function AlertsPage() {
@@ -44,14 +44,14 @@ export default async function AlertsPage() {
         action={<ScanButton />}
       />
 
-      <section className="rounded-lg border border-slate-200 bg-white overflow-hidden mb-8">
+      <section className="rounded-lg border border-subtle bg-surface overflow-hidden mb-8">
         {openAlerts.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-500">
+          <div className="p-10 text-center text-sm text-muted">
             Aucune alerte ouverte. Tout est sous contrôle ✓
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+            <thead className="text-left text-xs uppercase text-muted bg-surface-2">
               <tr>
                 <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Niveau</th>
@@ -63,7 +63,7 @@ export default async function AlertsPage() {
             </thead>
             <tbody>
               {openAlerts.map((a) => (
-                <tr key={a.id} className="border-t border-slate-100">
+                <tr key={a.id} className="border-t border-subtle/60">
                   <td className="px-4 py-3 font-medium">{TYPE_LABEL[a.type]}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${SEV_CLS[a.severity]}`}>
@@ -71,8 +71,8 @@ export default async function AlertsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">{a.message}</td>
-                  <td className="px-4 py-3 text-slate-600">{a.user?.name ?? a.user?.email ?? "—"}</td>
-                  <td className="px-4 py-3 text-slate-600">{dateFr(a.createdAt)}</td>
+                  <td className="px-4 py-3 text-muted">{a.user?.name ?? a.user?.email ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">{dateFr(a.createdAt)}</td>
                   <td className="px-4 py-3 text-right">
                     <AlertActions alertId={a.id} />
                   </td>
@@ -85,15 +85,15 @@ export default async function AlertsPage() {
 
       {resolved.length > 0 && (
         <section>
-          <h2 className="text-sm font-medium text-slate-600 mb-2">Récemment résolues</h2>
-          <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+          <h2 className="text-sm font-medium text-muted mb-2">Récemment résolues</h2>
+          <div className="rounded-lg border border-subtle bg-surface overflow-hidden">
             <table className="w-full text-sm">
               <tbody>
                 {resolved.map((a) => (
-                  <tr key={a.id} className="border-t border-slate-100">
-                    <td className="px-4 py-2 text-slate-600">{TYPE_LABEL[a.type]}</td>
-                    <td className="px-4 py-2 text-slate-500">{a.message}</td>
-                    <td className="px-4 py-2 text-slate-400 text-xs">{dateFr(a.resolvedAt!)}</td>
+                  <tr key={a.id} className="border-t border-subtle/60">
+                    <td className="px-4 py-2 text-muted">{TYPE_LABEL[a.type]}</td>
+                    <td className="px-4 py-2 text-muted">{a.message}</td>
+                    <td className="px-4 py-2 text-muted-strong text-xs">{dateFr(a.resolvedAt!)}</td>
                   </tr>
                 ))}
               </tbody>

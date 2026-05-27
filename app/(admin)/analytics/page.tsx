@@ -48,18 +48,18 @@ export default async function AnalyticsPage() {
         <KpiCard label="Marge brute" value={`${marginPct.toFixed(1)} %`} tone="positive" />
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-6 mb-6">
+      <section className="rounded-lg border border-subtle bg-surface p-6 mb-6">
         <h2 className="font-medium mb-4">CA & profit net mensuel</h2>
         <RevenueProfitChart data={monthly} />
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="rounded-lg border border-slate-200 bg-white p-6">
+        <section className="rounded-lg border border-subtle bg-surface p-6">
           <h2 className="font-medium mb-4">Top catégories (CA)</h2>
           <CategoryPie data={cats} />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-6">
+        <section className="rounded-lg border border-subtle bg-surface p-6">
           <h2 className="font-medium mb-4">CA par revendeur</h2>
           <ResellerBarChart data={byReseller} />
         </section>

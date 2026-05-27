@@ -19,7 +19,7 @@ export function ScanButton() {
     <button
       onClick={scan}
       disabled={loading}
-      className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-3 py-2 text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-md bg-accent text-on-accent px-3 py-2 text-sm font-medium hover:bg-accent-strong disabled:opacity-50"
     >
       <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
       Scanner

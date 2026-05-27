@@ -45,14 +45,14 @@ export default async function DebtsPage() {
       </div>
 
       {details.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-lg border border-dashed border-input bg-surface p-10 text-center text-sm text-muted">
           Toutes les ventes ont été payées ✓
         </div>
       ) : (
         <div className="space-y-4">
           {details.map((d) => (
-            <section key={d.userId} className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <section key={d.userId} className="rounded-lg border border-subtle bg-surface overflow-hidden">
+              <div className="px-4 py-3 border-b border-subtle flex items-center justify-between">
                 <div>
                   <Link
                     href={`/resellers/${d.userId}`}
@@ -60,14 +60,14 @@ export default async function DebtsPage() {
                   >
                     {d.name ?? d.email}
                   </Link>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-muted">
                     {d.pendingSalesCount} vente(s) en attente
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-xs text-slate-500">À payer</div>
-                    <div className="text-xl font-semibold tabular-nums text-amber-700">
+                    <div className="text-xs text-muted">À payer</div>
+                    <div className="text-xl font-semibold tabular-nums text-warning">
                       {eur(d.amount)}
                     </div>
                   </div>
@@ -76,7 +76,7 @@ export default async function DebtsPage() {
               </div>
 
               <table className="w-full text-sm">
-                <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+                <thead className="text-left text-xs uppercase text-muted bg-surface-2">
                   <tr>
                     <th className="px-4 py-2">Vendu le</th>
                     <th className="px-4 py-2">Article</th>
@@ -86,8 +86,8 @@ export default async function DebtsPage() {
                 </thead>
                 <tbody>
                   {d.sales.map((s) => (
-                    <tr key={s.id} className="border-t border-slate-100">
-                      <td className="px-4 py-2 text-slate-600">{dateFr(s.soldAt)}</td>
+                    <tr key={s.id} className="border-t border-subtle/60">
+                      <td className="px-4 py-2 text-muted">{dateFr(s.soldAt)}</td>
                       <td className="px-4 py-2">{s.item.title}</td>
                       <td className="px-4 py-2 text-right tabular-nums">{eur(s.soldPrice)}</td>
                       <td className="px-4 py-2 text-right tabular-nums font-medium">{eur(s.resellerPayout)}</td>

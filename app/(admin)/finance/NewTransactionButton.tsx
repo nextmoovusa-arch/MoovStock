@@ -71,7 +71,7 @@ export function NewTransactionButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-3 py-2 text-sm font-medium hover:bg-slate-800"
+        className="inline-flex items-center gap-2 rounded-md bg-accent text-on-accent px-3 py-2 text-sm font-medium hover:bg-accent-strong"
       >
         <Plus className="size-4" />
         Transaction
@@ -79,53 +79,53 @@ export function NewTransactionButton() {
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
+          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
             <h3 className="font-semibold mb-3">Nouvelle transaction</h3>
             <div className="grid grid-cols-2 gap-3">
               <Select label="Type" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={TYPES} />
               <Select label="Catégorie" value={form.category} onChange={(v) => setForm({ ...form, category: v })} options={CATEGORIES} />
               <Select label="Compte" value={form.account} onChange={(v) => setForm({ ...form, account: v })} options={ACCOUNTS} />
               <label>
-                <span className="block text-xs text-slate-500 mb-1">Montant (€)</span>
+                <span className="block text-xs text-muted mb-1">Montant (€)</span>
                 <input
                   type="number"
                   step="0.01"
                   min="0.01"
                   value={form.amount || ""}
                   onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-                  className="w-full rounded-md border border-slate-300 px-2 py-1.5 tabular-nums"
+                  className="w-full rounded-md border border-input px-2 py-1.5 tabular-nums"
                 />
               </label>
               <label className="col-span-2">
-                <span className="block text-xs text-slate-500 mb-1">Date</span>
+                <span className="block text-xs text-muted mb-1">Date</span>
                 <input
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                  className="w-full rounded-md border border-input px-2 py-1.5"
                 />
               </label>
               <label className="col-span-2">
-                <span className="block text-xs text-slate-500 mb-1">Note (optionnel)</span>
+                <span className="block text-xs text-muted mb-1">Note (optionnel)</span>
                 <textarea
                   rows={2}
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                  className="w-full rounded-md border border-input px-2 py-1.5"
                 />
               </label>
             </div>
 
-            {err && <div className="mt-3 text-rose-600 text-xs">{err}</div>}
+            {err && <div className="mt-3 text-danger text-xs">{err}</div>}
 
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-slate-100">
+              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-surface-2">
                 Annuler
               </button>
               <button
                 onClick={submit}
                 disabled={loading || form.amount <= 0}
-                className="rounded-md bg-slate-900 text-white px-3 py-1.5 font-medium hover:bg-slate-800 disabled:opacity-50"
+                className="rounded-md bg-accent text-on-accent px-3 py-1.5 font-medium hover:bg-accent-strong disabled:opacity-50"
               >
                 {loading ? "..." : "Enregistrer"}
               </button>
@@ -142,11 +142,11 @@ function Select({
 }: { label: string; value: string; onChange: (v: string) => void; options: { v: string; l: string }[] }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-slate-300 px-2 py-1.5 bg-white"
+        className="w-full rounded-md border border-input px-2 py-1.5 bg-surface"
       >
         {options.map((o) => (
           <option key={o.v} value={o.v}>{o.l}</option>

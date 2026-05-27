@@ -42,26 +42,26 @@ export function PayButton({ resellerId, amount }: { resellerId: string; amount: 
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-emerald-600 text-white px-3 py-2 text-sm font-medium hover:bg-emerald-700"
+        className="rounded-md bg-accent text-on-accent px-3 py-2 text-sm font-medium hover:bg-accent-strong"
       >
         Payer {eur(amount)}
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
+          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
             <h3 className="font-semibold mb-3">Confirmer le paiement</h3>
-            <p className="text-slate-600 mb-4">
+            <p className="text-muted mb-4">
               Marquer toutes les ventes en attente comme payées et créer les transactions de
               reversement pour <strong>{eur(amount)}</strong> ?
             </p>
 
             <label className="block mb-3">
-              <span className="block text-xs text-slate-500 mb-1">Compte source</span>
+              <span className="block text-xs text-muted mb-1">Compte source</span>
               <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5 bg-white"
+                className="w-full rounded-md border border-input px-2 py-1.5 bg-surface"
               >
                 {ACCOUNTS.map((a) => (
                   <option key={a.v} value={a.v}>{a.l}</option>
@@ -70,26 +70,26 @@ export function PayButton({ resellerId, amount }: { resellerId: string; amount: 
             </label>
 
             <label className="block mb-3">
-              <span className="block text-xs text-slate-500 mb-1">Note (optionnel)</span>
+              <span className="block text-xs text-muted mb-1">Note (optionnel)</span>
               <input
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Ref virement, mois..."
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                className="w-full rounded-md border border-input px-2 py-1.5"
               />
             </label>
 
-            {err && <div className="text-rose-600 text-xs mb-2">{err}</div>}
+            {err && <div className="text-danger text-xs mb-2">{err}</div>}
 
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-slate-100">
+              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-surface-2">
                 Annuler
               </button>
               <button
                 onClick={submit}
                 disabled={loading}
-                className="rounded-md bg-emerald-600 text-white px-3 py-1.5 font-medium hover:bg-emerald-700 disabled:opacity-50"
+                className="rounded-md bg-accent text-on-accent px-3 py-1.5 font-medium hover:bg-accent-strong disabled:opacity-50"
               >
                 {loading ? "..." : "Confirmer"}
               </button>

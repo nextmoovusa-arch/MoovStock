@@ -84,29 +84,29 @@ export function DailyLogForm({
       </div>
 
       <label className="block">
-        <span className="block text-xs text-slate-500 mb-1">Problèmes du jour (optionnel)</span>
+        <span className="block text-xs text-muted mb-1">Problèmes du jour (optionnel)</span>
         <textarea
           rows={3}
           value={form.issues ?? ""}
           onChange={(e) => setForm({ ...form, issues: e.target.value })}
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-input px-3 py-2"
           placeholder="Imprimante HS, colis annulé, perte..."
         />
       </label>
 
       {mismatch && (
-        <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">
+        <div className="text-xs rounded-md bg-warning/10 border border-warning/30 text-warning px-3 py-2">
           Écart ventes ({form.itemsSold}) vs pochettes ({form.pouchesUsed}) — c&apos;est normal ?
         </div>
       )}
 
-      {err && <div className="text-rose-600">{err}</div>}
-      {ok && <div className="text-emerald-600">Saisie enregistrée ✓</div>}
+      {err && <div className="text-danger">{err}</div>}
+      {ok && <div className="text-success">Saisie enregistrée ✓</div>}
 
       <div className="flex justify-end">
         <button
           disabled={loading}
-          className="rounded-md bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-800 disabled:opacity-50"
+          className="rounded-md bg-accent text-on-accent px-4 py-2 font-medium hover:bg-accent-strong disabled:opacity-50"
         >
           {loading ? "..." : initial ? "Mettre à jour" : "Enregistrer"}
         </button>
@@ -129,12 +129,12 @@ function Num({
   hint?: string;
 }) {
   const ring =
-    tone === "ok" ? "ring-emerald-200" : tone === "warn" ? "ring-amber-200" : "ring-transparent";
+    tone === "ok" ? "ring-success/30" : tone === "warn" ? "ring-warning/30" : "ring-transparent";
   return (
     <label className="block">
-      <span className="block text-xs text-slate-500 mb-1 flex items-center justify-between">
+      <span className="block text-xs text-muted mb-1 flex items-center justify-between">
         <span>{label}</span>
-        {hint && <span className="text-slate-400">{hint}</span>}
+        {hint && <span className="text-muted-strong">{hint}</span>}
       </span>
       <input
         type="number"
@@ -142,7 +142,7 @@ function Num({
         step="1"
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value || "0", 10))}
-        className={`w-full rounded-md border border-slate-300 px-3 py-2 tabular-nums ring-2 ${ring}`}
+        className={`w-full rounded-md border border-input px-3 py-2 tabular-nums ring-2 ${ring}`}
       />
     </label>
   );

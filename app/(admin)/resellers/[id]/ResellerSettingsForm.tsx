@@ -54,28 +54,28 @@ export function ResellerSettingsForm({ id, initial }: { id: string; initial: Ini
   return (
     <form onSubmit={submit} className="space-y-3 text-sm">
       <label className="block">
-        <span className="block text-xs text-slate-500 mb-1">Nom affiché</span>
+        <span className="block text-xs text-muted mb-1">Nom affiché</span>
         <input
           type="text"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-input px-3 py-2"
         />
       </label>
 
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="block text-xs text-slate-500 mb-1">Objectif articles / jour</span>
+          <span className="block text-xs text-muted mb-1">Objectif articles / jour</span>
           <input
             type="number"
             min="0"
             value={form.dailyGoalItems}
             onChange={(e) => setForm({ ...form, dailyGoalItems: parseInt(e.target.value || "0", 10) })}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 tabular-nums"
+            className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
           />
         </label>
         <label className="block">
-          <span className="block text-xs text-slate-500 mb-1">
+          <span className="block text-xs text-muted mb-1">
             Commission revendeur ({Math.round(form.commissionRate * 100)} %)
           </span>
           <input
@@ -92,11 +92,11 @@ export function ResellerSettingsForm({ id, initial }: { id: string; initial: Ini
 
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="block text-xs text-slate-500 mb-1">Rôle</span>
+          <span className="block text-xs text-muted mb-1">Rôle</span>
           <select
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 bg-white"
+            className="w-full rounded-md border border-input px-3 py-2 bg-surface"
           >
             <option value="RESELLER">Revendeur</option>
             <option value="ADMIN">Admin</option>
@@ -113,13 +113,13 @@ export function ResellerSettingsForm({ id, initial }: { id: string; initial: Ini
         </label>
       </div>
 
-      {err && <div className="text-rose-600">{err}</div>}
-      {ok && <div className="text-emerald-600">Enregistré ✓</div>}
+      {err && <div className="text-danger">{err}</div>}
+      {ok && <div className="text-success">Enregistré ✓</div>}
 
-      <div className="flex justify-end pt-2 border-t border-slate-100">
+      <div className="flex justify-end pt-2 border-t border-subtle/60">
         <button
           disabled={loading}
-          className="rounded-md bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-800 disabled:opacity-50"
+          className="rounded-md bg-accent text-on-accent px-4 py-2 font-medium hover:bg-accent-strong disabled:opacity-50"
         >
           {loading ? "..." : "Enregistrer"}
         </button>

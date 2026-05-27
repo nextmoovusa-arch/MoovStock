@@ -3,13 +3,86 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg:          9 13 12;
+  --surface:     15 21 20;
+  --surface-2:   21 30 28;
+  --subtle:      31 44 41;
+  --input:       41 56 53;
+
+  /* Text */
+  --foreground:        232 242 239;
+  --muted-foreground:  142 158 154;
+  --muted:             92 104 101;
+
+  /* Brand */
+  --accent:        63 212 179;
+  --accent-strong: 44 184 154;
+  --accent-soft:   17 50 43;
+  --on-accent:     8 22 19;
+
+  /* Feedback */
+  --danger:  248 113 113;
+  --warning: 251 191 36;
+  --success: 52 211 153;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  background-color: rgb(var(--surface));
+  color: rgb(var(--foreground));
+  border-color: rgb(var(--input));
+}
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--muted));
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgb(var(--accent));
+  box-shadow: 0 0 0 3px rgb(var(--accent) / 0.18);
+}
+
+/* Range slider */
+input[type="range"] {
+  accent-color: rgb(var(--accent));
+}
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--bg));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--subtle));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--input));
+}
+
+/* Selection */
+::selection {
+  background-color: rgb(var(--accent) / 0.3);
+  color: rgb(var(--foreground));
 }

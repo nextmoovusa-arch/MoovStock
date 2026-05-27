@@ -67,7 +67,7 @@ export default async function ResellerDetail({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-lg border border-slate-200 bg-white p-6">
+        <div className="rounded-lg border border-subtle bg-surface p-6">
           <h2 className="font-medium mb-4">Paramètres</h2>
           <ResellerSettingsForm
             id={user.id}
@@ -81,7 +81,7 @@ export default async function ResellerDetail({
           />
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6">
+        <div className="rounded-lg border border-subtle bg-surface p-6">
           <h2 className="font-medium mb-4">Résumé</h2>
           <dl className="text-sm space-y-2">
             <Row label="Articles totaux" value={String(user._count.items)} />
@@ -99,8 +99,8 @@ export default async function ResellerDetail({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-slate-100 pb-1.5">
-      <dt className="text-slate-500">{label}</dt>
+    <div className="flex justify-between border-b border-subtle/60 pb-1.5">
+      <dt className="text-muted">{label}</dt>
       <dd className="font-medium tabular-nums">{value}</dd>
     </div>
   );

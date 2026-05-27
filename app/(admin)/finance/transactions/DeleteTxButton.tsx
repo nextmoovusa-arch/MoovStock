@@ -20,7 +20,7 @@ export function DeleteTxButton({ txId }: { txId: string }) {
     <button
       onClick={onClick}
       disabled={loading}
-      className="text-xs rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-100 disabled:opacity-50"
+      className="text-xs rounded-md border border-subtle px-2 py-1 hover:bg-surface-2 disabled:opacity-50"
       title="Supprimer"
     >
       <Trash2 className="size-3.5" />

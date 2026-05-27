@@ -57,7 +57,7 @@ export function NewSupplyButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-3 py-2 text-sm font-medium hover:bg-slate-800"
+        className="inline-flex items-center gap-2 rounded-md bg-accent text-on-accent px-3 py-2 text-sm font-medium hover:bg-accent-strong"
       >
         <Plus className="size-4" />
         Ajouter
@@ -65,15 +65,15 @@ export function NewSupplyButton() {
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
+          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
             <h3 className="font-semibold mb-3">Nouveau consommable</h3>
             <div className="grid grid-cols-2 gap-3">
               <label className="col-span-2">
-                <span className="block text-xs text-slate-500 mb-1">Type</span>
+                <span className="block text-xs text-muted mb-1">Type</span>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  className="w-full rounded-md border border-slate-300 px-2 py-1.5 bg-white"
+                  className="w-full rounded-md border border-input px-2 py-1.5 bg-surface"
                 >
                   {TYPES.map((t) => (
                     <option key={t.v} value={t.v}>{t.l}</option>
@@ -81,13 +81,13 @@ export function NewSupplyButton() {
                 </select>
               </label>
               <label className="col-span-2">
-                <span className="block text-xs text-slate-500 mb-1">Nom (optionnel)</span>
+                <span className="block text-xs text-muted mb-1">Nom (optionnel)</span>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Ex: Pochettes 25x35"
-                  className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                  className="w-full rounded-md border border-input px-2 py-1.5"
                 />
               </label>
               <Num label="Quantité actuelle" value={form.quantity} onChange={(v) => setForm({ ...form, quantity: v })} />
@@ -112,16 +112,16 @@ export function NewSupplyButton() {
               )}
             </div>
 
-            {err && <div className="mt-3 text-rose-600 text-xs">{err}</div>}
+            {err && <div className="mt-3 text-danger text-xs">{err}</div>}
 
             <div className="mt-4 flex justify-end gap-2">
-              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-slate-100">
+              <button onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5 hover:bg-surface-2">
                 Annuler
               </button>
               <button
                 onClick={submit}
                 disabled={loading}
-                className="rounded-md bg-slate-900 text-white px-3 py-1.5 font-medium hover:bg-slate-800 disabled:opacity-50"
+                className="rounded-md bg-accent text-on-accent px-3 py-1.5 font-medium hover:bg-accent-strong disabled:opacity-50"
               >
                 {loading ? "..." : "Créer"}
               </button>
@@ -138,14 +138,14 @@ function Num({
 }: { label: string; value: number; onChange: (v: number) => void; step?: number }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <input
         type="number"
         min="0"
         step={step}
         value={value}
         onChange={(e) => onChange(step === 1 ? parseInt(e.target.value || "0", 10) : parseFloat(e.target.value) || 0)}
-        className="w-full rounded-md border border-slate-300 px-2 py-1.5 tabular-nums"
+        className="w-full rounded-md border border-input px-2 py-1.5 tabular-nums"
       />
     </label>
   );

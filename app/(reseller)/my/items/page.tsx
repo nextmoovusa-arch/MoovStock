@@ -30,7 +30,7 @@ export default async function MyItemsPage() {
         action={
           <Link
             href="/my/items/new"
-            className="inline-flex items-center gap-2 rounded-md bg-slate-900 text-white px-3 py-2 text-sm font-medium hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-md bg-accent text-on-accent px-3 py-2 text-sm font-medium hover:bg-accent-strong"
           >
             <Plus className="size-4" />
             Ajouter un article
@@ -38,9 +38,9 @@ export default async function MyItemsPage() {
         }
       />
 
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-lg border border-subtle bg-surface overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+          <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Article</th>
               <th className="px-4 py-2">Statut</th>
@@ -53,10 +53,10 @@ export default async function MyItemsPage() {
           </thead>
           <tbody>
             {items.map((it) => (
-              <tr key={it.id} className="border-t border-slate-100">
+              <tr key={it.id} className="border-t border-subtle/60">
                 <td className="px-4 py-3">
                   <div className="font-medium">{it.title}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-muted">
                     {[it.brand, it.category, it.size].filter(Boolean).join(" · ") || "—"}
                   </div>
                 </td>
@@ -68,7 +68,7 @@ export default async function MyItemsPage() {
                 <td className="px-4 py-3 text-right tabular-nums">
                   {it.sale ? eur(it.sale.soldPrice) : "—"}
                 </td>
-                <td className="px-4 py-3 text-slate-600">{dateFr(it.createdAt)}</td>
+                <td className="px-4 py-3 text-muted">{dateFr(it.createdAt)}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-2">
                     {it.status !== "SOLD" && <MarkSoldButton itemId={it.id} suggested={it.listingPrice} />}
@@ -79,7 +79,7 @@ export default async function MyItemsPage() {
             ))}
             {items.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted">
                   Aucun article. <Link href="/my/items/new" className="underline">Ajoute le premier</Link>.
                 </td>
               </tr>

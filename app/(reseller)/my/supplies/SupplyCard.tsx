@@ -37,10 +37,10 @@ export function SupplyCard({
   const [expanded, setExpanded] = useState(false);
 
   const status = analysis.critical
-    ? { label: "Critique", cls: "bg-rose-100 text-rose-700" }
+    ? { label: "Critique", cls: "bg-danger/15 text-danger" }
     : analysis.needsRestock
-    ? { label: "À racheter", cls: "bg-amber-100 text-amber-700" }
-    : { label: "OK", cls: "bg-emerald-100 text-emerald-700" };
+    ? { label: "À racheter", cls: "bg-warning/15 text-warning" }
+    : { label: "OK", cls: "bg-success/15 text-success" };
 
   async function restock() {
     if (restockQty <= 0) return;
@@ -79,10 +79,10 @@ export function SupplyCard({
   }
 
   return (
-    <div className={cn("rounded-lg border bg-white p-5", analysis.critical ? "border-rose-300" : "border-slate-200")}>
+    <div className={cn("rounded-lg border bg-surface p-5", analysis.critical ? "border-danger/40" : "border-subtle")}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-xs uppercase tracking-wide text-slate-500">
+          <div className="text-xs uppercase tracking-wide text-muted">
             {TYPE_LABEL[supply.type] ?? supply.type}
           </div>
           <div className="font-medium">{supply.name ?? TYPE_LABEL[supply.type]}</div>
@@ -91,7 +91,7 @@ export function SupplyCard({
       </div>
 
       <div className="text-3xl font-semibold tabular-nums mb-1">{supply.quantity}</div>
-      <div className="text-xs text-slate-500 mb-4">
+      <div className="text-xs text-muted mb-4">
         {analysis.avgDaily > 0
           ? `Conso ~${analysis.avgDaily.toFixed(1)}/j · ${
               analysis.daysRemaining !== null ? `${Math.floor(analysis.daysRemaining)} j restants` : "—"
@@ -106,12 +106,12 @@ export function SupplyCard({
           placeholder="Quantité"
           value={restockQty || ""}
           onChange={(e) => setRestockQty(parseInt(e.target.value || "0", 10))}
-          className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm tabular-nums"
+          className="flex-1 rounded-md border border-input px-2 py-1.5 text-sm tabular-nums"
         />
         <button
           onClick={restock}
           disabled={loading || restockQty <= 0}
-          className="rounded-md bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-accent text-on-accent px-3 py-1.5 text-sm font-medium hover:bg-accent-strong disabled:opacity-50"
         >
           + Racheter
         </button>
@@ -121,40 +121,40 @@ export function SupplyCard({
         <button
           onClick={() => adjust(-1)}
           disabled={loading || supply.quantity <= 0}
-          className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-100 disabled:opacity-50"
+          className="rounded border border-subtle px-2 py-1 hover:bg-surface-2 disabled:opacity-50"
         >
           −1
         </button>
         <button
           onClick={() => adjust(1)}
           disabled={loading}
-          className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-100 disabled:opacity-50"
+          className="rounded border border-subtle px-2 py-1 hover:bg-surface-2 disabled:opacity-50"
         >
           +1
         </button>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="ml-auto text-slate-500 hover:text-slate-900"
+          className="ml-auto text-muted hover:text-foreground"
         >
           {expanded ? "Masquer" : "Historique"}
         </button>
       </div>
 
-      {err && <div className="text-xs text-rose-600 mb-2">{err}</div>}
+      {err && <div className="text-xs text-danger mb-2">{err}</div>}
 
-      <div className="text-xs text-slate-500 border-t border-slate-100 pt-2">
+      <div className="text-xs text-muted border-t border-subtle/60 pt-2">
         Coût unitaire {eur(supply.unitCost)} · délai {supply.restockLeadDays}j · marge {supply.safetyMarginDays}j
         {supply.lastRestockedAt && <> · racheté {dateFr(supply.lastRestockedAt)}</>}
       </div>
 
       {expanded && movements.length > 0 && (
-        <ul className="mt-3 text-xs space-y-1 border-t border-slate-100 pt-2">
+        <ul className="mt-3 text-xs space-y-1 border-t border-subtle/60 pt-2">
           {movements.map((m) => (
-            <li key={m.id} className="flex justify-between text-slate-600">
+            <li key={m.id} className="flex justify-between text-muted">
               <span>
                 {dateFr(m.createdAt)} · {REASON_LABEL[m.reason]}
               </span>
-              <span className={cn("tabular-nums font-medium", m.delta > 0 ? "text-emerald-600" : "text-rose-600")}>
+              <span className={cn("tabular-nums font-medium", m.delta > 0 ? "text-success" : "text-danger")}>
                 {m.delta > 0 ? "+" : ""}
                 {m.delta}
               </span>

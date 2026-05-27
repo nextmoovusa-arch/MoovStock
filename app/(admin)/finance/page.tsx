@@ -70,21 +70,21 @@ export default async function FinancePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <section className="lg:col-span-2 rounded-lg border border-slate-200 bg-white overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+        <section className="lg:col-span-2 rounded-lg border border-subtle bg-surface overflow-hidden">
+          <div className="px-4 py-3 border-b border-subtle flex justify-between items-center">
             <h2 className="font-medium">Dernières transactions</h2>
-            <Link href="/finance/transactions" className="text-sm text-slate-500 hover:text-slate-900">
+            <Link href="/finance/transactions" className="text-sm text-muted hover:text-foreground">
               Voir tout →
             </Link>
           </div>
           {recent.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-500">
+            <div className="p-8 text-center text-sm text-muted">
               Aucune transaction.{" "}
-              <span className="text-slate-400">Clique sur « + » pour en ajouter.</span>
+              <span className="text-muted-strong">Clique sur « + » pour en ajouter.</span>
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+              <thead className="text-left text-xs uppercase text-muted bg-surface-2">
                 <tr>
                   <th className="px-4 py-2">Date</th>
                   <th className="px-4 py-2">Catégorie</th>
@@ -95,22 +95,22 @@ export default async function FinancePage() {
               </thead>
               <tbody>
                 {recent.map((t) => (
-                  <tr key={t.id} className="border-t border-slate-100">
-                    <td className="px-4 py-2 text-slate-600">{dateFr(t.date)}</td>
+                  <tr key={t.id} className="border-t border-subtle/60">
+                    <td className="px-4 py-2 text-muted">{dateFr(t.date)}</td>
                     <td className="px-4 py-2">
                       <div className="font-medium">{CATEGORY_LABEL[t.category]}</div>
-                      <div className="text-xs text-slate-500">{TYPE_LABEL[t.type]}</div>
+                      <div className="text-xs text-muted">{TYPE_LABEL[t.type]}</div>
                     </td>
-                    <td className="px-4 py-2 text-slate-600">{ACCOUNT_LABEL[t.account]}</td>
-                    <td className="px-4 py-2 text-slate-600 truncate max-w-[220px]">
+                    <td className="px-4 py-2 text-muted">{ACCOUNT_LABEL[t.account]}</td>
+                    <td className="px-4 py-2 text-muted truncate max-w-[220px]">
                       {t.note || "—"}
                       {t.relatedUser && (
-                        <span className="ml-1 text-xs text-slate-400">· {t.relatedUser.name ?? t.relatedUser.email}</span>
+                        <span className="ml-1 text-xs text-muted-strong">· {t.relatedUser.name ?? t.relatedUser.email}</span>
                       )}
                     </td>
                     <td
                       className={`px-4 py-2 text-right tabular-nums font-medium ${
-                        t.type === "INCOME" ? "text-emerald-600" : "text-rose-600"
+                        t.type === "INCOME" ? "text-success" : "text-danger"
                       }`}
                     >
                       {t.type === "INCOME" ? "+" : "−"}
@@ -123,32 +123,32 @@ export default async function FinancePage() {
           )}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white">
-          <div className="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+        <section className="rounded-lg border border-subtle bg-surface">
+          <div className="px-4 py-3 border-b border-subtle flex justify-between items-center">
             <h2 className="font-medium">Dettes revendeurs</h2>
-            <Link href="/finance/debts" className="text-sm text-slate-500 hover:text-slate-900">
+            <Link href="/finance/debts" className="text-sm text-muted hover:text-foreground">
               Payer →
             </Link>
           </div>
           {debts.length === 0 ? (
-            <div className="p-6 text-center text-sm text-slate-500">Tout est à jour ✓</div>
+            <div className="p-6 text-center text-sm text-muted">Tout est à jour ✓</div>
           ) : (
-            <ul className="divide-y divide-slate-100 text-sm">
+            <ul className="divide-y divide-subtle/60 text-sm">
               {debts.slice(0, 5).map((d) => (
                 <li key={d.userId} className="px-4 py-3 flex justify-between">
                   <div>
                     <div className="font-medium">{d.name ?? d.email}</div>
-                    <div className="text-xs text-slate-500">{d.pendingSalesCount} vente(s)</div>
+                    <div className="text-xs text-muted">{d.pendingSalesCount} vente(s)</div>
                   </div>
-                  <div className="tabular-nums font-medium text-amber-700">{eur(d.amount)}</div>
+                  <div className="tabular-nums font-medium text-warning">{eur(d.amount)}</div>
                 </li>
               ))}
             </ul>
           )}
 
-          <div className="px-4 py-3 mt-2 border-t border-slate-100 text-sm flex justify-between">
-            <span className="text-slate-500">Dépenses 30 j</span>
-            <span className="tabular-nums font-medium text-rose-600">
+          <div className="px-4 py-3 mt-2 border-t border-subtle/60 text-sm flex justify-between">
+            <span className="text-muted">Dépenses 30 j</span>
+            <span className="tabular-nums font-medium text-danger">
               {eur(expenses30._sum.amount)}
             </span>
           </div>

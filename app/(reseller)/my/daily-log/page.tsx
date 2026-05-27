@@ -38,7 +38,7 @@ export default async function DailyLogPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-lg border border-slate-200 bg-white p-6">
+        <div className="lg:col-span-2 rounded-lg border border-subtle bg-surface p-6">
           <h2 className="font-medium mb-4">
             {todayLog ? "Modifier ma saisie d'aujourd'hui" : "Saisie d'aujourd'hui"}
           </h2>
@@ -49,27 +49,27 @@ export default async function DailyLogPage() {
           />
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white">
-          <div className="px-4 py-3 border-b border-slate-200">
+        <div className="rounded-lg border border-subtle bg-surface">
+          <div className="px-4 py-3 border-b border-subtle">
             <h2 className="font-medium">Historique 14 jours</h2>
           </div>
           {history.length === 0 ? (
-            <div className="p-6 text-sm text-slate-500 text-center">Aucune saisie pour l&apos;instant.</div>
+            <div className="p-6 text-sm text-muted text-center">Aucune saisie pour l&apos;instant.</div>
           ) : (
-            <ul className="divide-y divide-slate-100 text-sm">
+            <ul className="divide-y divide-subtle/60 text-sm">
               {history.map((l) => {
                 const hit = l.itemsListed >= user.dailyGoalItems;
                 return (
                   <li key={l.id} className="px-4 py-3 flex items-center justify-between">
                     <div>
                       <div className="font-medium">{dateFr(l.date)}</div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-muted">
                         {l.itemsListed} postés · {l.itemsSold} vendus
                       </div>
                     </div>
                     <span
                       className={`text-xs rounded px-2 py-0.5 font-medium ${
-                        hit ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        hit ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
                       }`}
                     >
                       {hit ? "Objectif ✓" : `${l.itemsListed}/${user.dailyGoalItems}`}

@@ -41,14 +41,14 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs font-medium rounded-md bg-emerald-600 text-white px-2 py-1 hover:bg-emerald-700"
+        className="text-xs font-medium rounded-md bg-accent text-on-accent px-2 py-1 hover:bg-accent-strong"
       >
         Vendu
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-5">
+          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5">
             <h3 className="font-semibold mb-3">Marquer comme vendu</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Field label="Prix vendu (€)" value={form.soldPrice} onChange={(v) => setForm({ ...form, soldPrice: v })} />
@@ -58,29 +58,29 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
               <Field label="Autres frais (€)" value={form.otherCost} onChange={(v) => setForm({ ...form, otherCost: v })} />
               <Field label="Port acheteur (€)" value={form.shippingFee} onChange={(v) => setForm({ ...form, shippingFee: v })} />
               <label className="col-span-2">
-                <span className="block text-xs text-slate-500 mb-1">Pays acheteur</span>
+                <span className="block text-xs text-muted mb-1">Pays acheteur</span>
                 <input
                   type="text"
                   value={form.buyerCountry}
                   onChange={(e) => setForm({ ...form, buyerCountry: e.target.value.toUpperCase() })}
-                  className="w-full rounded-md border-slate-300 border px-2 py-1.5"
+                  className="w-full rounded-md border-input border px-2 py-1.5"
                 />
               </label>
             </div>
 
-            {err && <div className="mt-3 text-sm text-rose-600">{err}</div>}
+            {err && <div className="mt-3 text-sm text-danger">{err}</div>}
 
             <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-1.5 text-sm hover:bg-slate-100"
+                className="rounded-md px-3 py-1.5 text-sm hover:bg-surface-2"
               >
                 Annuler
               </button>
               <button
                 onClick={submit}
                 disabled={loading || form.soldPrice <= 0}
-                className="rounded-md bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50"
+                className="rounded-md bg-accent text-on-accent px-3 py-1.5 text-sm font-medium hover:bg-accent-strong disabled:opacity-50"
               >
                 {loading ? "..." : "Confirmer"}
               </button>
@@ -103,14 +103,14 @@ function Field({
 }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <input
         type="number"
         step="0.01"
         min="0"
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-md border-slate-300 border px-2 py-1.5 tabular-nums"
+        className="w-full rounded-md border-input border px-2 py-1.5 tabular-nums"
       />
     </label>
   );

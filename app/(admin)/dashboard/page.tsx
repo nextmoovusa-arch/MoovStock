@@ -85,20 +85,20 @@ export default async function AdminDashboard() {
         />
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white">
-        <div className="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+      <section className="rounded-lg border border-subtle bg-surface">
+        <div className="px-4 py-3 border-b border-subtle flex justify-between items-center">
           <h2 className="font-medium">Dernières ventes</h2>
-          <Link href="/finance" className="text-sm text-slate-500 hover:text-slate-900">
+          <Link href="/finance" className="text-sm text-muted hover:text-foreground">
             Voir tout →
           </Link>
         </div>
         {recentSales.length === 0 ? (
-          <div className="p-8 text-center text-sm text-slate-500">
+          <div className="p-8 text-center text-sm text-muted">
             Aucune vente enregistrée. Les revendeurs marqueront leurs articles comme vendus.
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+            <thead className="text-left text-xs uppercase text-muted bg-surface-2">
               <tr>
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Article</th>
@@ -109,10 +109,10 @@ export default async function AdminDashboard() {
             </thead>
             <tbody>
               {recentSales.map((s) => (
-                <tr key={s.id} className="border-t border-slate-100">
+                <tr key={s.id} className="border-t border-subtle/60">
                   <td className="px-4 py-2">{dateFr(s.soldAt)}</td>
                   <td className="px-4 py-2 font-medium">{s.item.title}</td>
-                  <td className="px-4 py-2 text-slate-600">{s.reseller.name ?? s.reseller.email}</td>
+                  <td className="px-4 py-2 text-muted">{s.reseller.name ?? s.reseller.email}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{eur(s.soldPrice)}</td>
                   <td className="px-4 py-2 text-right tabular-nums font-medium">{eur(s.netProfit)}</td>
                 </tr>

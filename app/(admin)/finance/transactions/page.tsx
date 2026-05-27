@@ -25,9 +25,9 @@ export default async function TransactionsPage() {
         action={<NewTransactionButton />}
       />
 
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-lg border border-subtle bg-surface overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+          <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Date</th>
               <th className="px-4 py-2">Type</th>
@@ -41,18 +41,18 @@ export default async function TransactionsPage() {
           </thead>
           <tbody>
             {txs.map((t) => (
-              <tr key={t.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 text-slate-600">{dateFr(t.date)}</td>
+              <tr key={t.id} className="border-t border-subtle/60">
+                <td className="px-4 py-2 text-muted">{dateFr(t.date)}</td>
                 <td className="px-4 py-2">{TYPE_LABEL[t.type]}</td>
                 <td className="px-4 py-2">{CATEGORY_LABEL[t.category]}</td>
-                <td className="px-4 py-2 text-slate-600">{ACCOUNT_LABEL[t.account]}</td>
-                <td className="px-4 py-2 text-slate-600">
+                <td className="px-4 py-2 text-muted">{ACCOUNT_LABEL[t.account]}</td>
+                <td className="px-4 py-2 text-muted">
                   {t.relatedUser ? t.relatedUser.name ?? t.relatedUser.email : "—"}
                 </td>
-                <td className="px-4 py-2 text-slate-600 truncate max-w-[200px]">{t.note || "—"}</td>
+                <td className="px-4 py-2 text-muted truncate max-w-[200px]">{t.note || "—"}</td>
                 <td
                   className={`px-4 py-2 text-right tabular-nums font-medium ${
-                    t.type === "INCOME" ? "text-emerald-600" : "text-rose-600"
+                    t.type === "INCOME" ? "text-success" : "text-danger"
                   }`}
                 >
                   {t.type === "INCOME" ? "+" : "−"}
@@ -65,7 +65,7 @@ export default async function TransactionsPage() {
             ))}
             {txs.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
+                <td colSpan={8} className="px-4 py-10 text-center text-sm text-muted">
                   Aucune transaction enregistrée.
                 </td>
               </tr>

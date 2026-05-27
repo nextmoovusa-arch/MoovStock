@@ -54,9 +54,9 @@ export default async function AdminSuppliesPage() {
         <KpiCard label="Valeur du stock" value={eur(totalValue)} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-lg border border-subtle bg-surface overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+          <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Revendeur</th>
               <th className="px-4 py-2">Type</th>
@@ -70,12 +70,12 @@ export default async function AdminSuppliesPage() {
           <tbody>
             {rows.map(({ supply, analysis }) => {
               const tone = analysis.critical
-                ? "text-rose-700 bg-rose-50"
+                ? "text-danger bg-danger/10"
                 : analysis.needsRestock
-                ? "text-amber-700 bg-amber-50"
+                ? "text-warning bg-warning/10"
                 : "";
               return (
-                <tr key={supply.id} className={cn("border-t border-slate-100", tone)}>
+                <tr key={supply.id} className={cn("border-t border-subtle/60", tone)}>
                   <td className="px-4 py-3">
                     <Link href={`/resellers/${supply.userId}`} className="font-medium hover:underline">
                       {supply.user.name ?? supply.user.email}
@@ -91,18 +91,18 @@ export default async function AdminSuppliesPage() {
                       ? "< 1 j"
                       : `${Math.floor(analysis.daysRemaining)} j`}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-slate-500">{analysis.thresholdUnits}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-muted">{analysis.thresholdUnits}</td>
                   <td className="px-4 py-3">
                     {analysis.critical ? (
-                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-rose-100 text-rose-700">
+                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-danger/15 text-danger">
                         Critique
                       </span>
                     ) : analysis.needsRestock ? (
-                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-amber-100 text-amber-700">
+                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-warning/15 text-warning">
                         À racheter
                       </span>
                     ) : (
-                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-emerald-100 text-emerald-700">
+                      <span className="text-xs font-medium rounded px-2 py-0.5 bg-success/15 text-success">
                         OK
                       </span>
                     )}
@@ -112,7 +112,7 @@ export default async function AdminSuppliesPage() {
             })}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted">
                   Aucun consommable suivi. Demande à tes revendeurs d&apos;en ajouter via leur espace.
                 </td>
               </tr>

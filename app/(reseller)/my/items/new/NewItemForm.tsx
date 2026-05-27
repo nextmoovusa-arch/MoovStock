@@ -75,28 +75,28 @@ export function NewItemForm() {
         <Field label="URL annonce Vinted" value={form.vintedUrl} onChange={(v) => set("vintedUrl", v)} placeholder="https://www.vinted.fr/..." />
       </Row>
       <label>
-        <span className="block text-xs text-slate-500 mb-1">Notes</span>
+        <span className="block text-xs text-muted mb-1">Notes</span>
         <textarea
           rows={3}
           value={form.notes}
           onChange={(e) => set("notes", e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-input px-3 py-2"
         />
       </label>
 
-      {err && <div className="text-rose-600">{err}</div>}
+      {err && <div className="text-danger">{err}</div>}
 
-      <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+      <div className="flex justify-end gap-2 pt-2 border-t border-subtle/60">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md px-3 py-2 hover:bg-slate-100"
+          className="rounded-md px-3 py-2 hover:bg-surface-2"
         >
           Annuler
         </button>
         <button
           disabled={loading || !form.title || form.purchasePrice < 0}
-          className="rounded-md bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-800 disabled:opacity-50"
+          className="rounded-md bg-accent text-on-accent px-4 py-2 font-medium hover:bg-accent-strong disabled:opacity-50"
         >
           {loading ? "..." : "Enregistrer"}
         </button>
@@ -115,14 +115,14 @@ function Field({
 }: { label: string; value: string; onChange: (v: string) => void; required?: boolean; placeholder?: string }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <input
         type="text"
         required={required}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-slate-300 px-3 py-2"
+        className="w-full rounded-md border border-input px-3 py-2"
       />
     </label>
   );
@@ -133,7 +133,7 @@ function NumField({
 }: { label: string; value: number; onChange: (v: number) => void; required?: boolean }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <input
         type="number"
         step="0.01"
@@ -141,7 +141,7 @@ function NumField({
         required={required}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-md border border-slate-300 px-3 py-2 tabular-nums"
+        className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
       />
     </label>
   );
@@ -152,11 +152,11 @@ function SelectField({
 }: { label: string; value: string; onChange: (v: string) => void; options: { v: string; l: string }[] }) {
   return (
     <label>
-      <span className="block text-xs text-slate-500 mb-1">{label}</span>
+      <span className="block text-xs text-muted mb-1">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-slate-300 px-3 py-2 bg-white"
+        className="w-full rounded-md border border-input px-3 py-2 bg-surface"
       >
         {options.map((o) => (
           <option key={o.v} value={o.v}>{o.l}</option>

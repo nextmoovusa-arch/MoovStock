@@ -18,7 +18,7 @@ export function AlertActions({ alertId }: { alertId: string }) {
     <button
       onClick={resolve}
       disabled={loading}
-      className="text-xs font-medium rounded-md border border-slate-200 px-2 py-1 hover:bg-slate-100 disabled:opacity-50"
+      className="text-xs font-medium rounded-md border border-subtle px-2 py-1 hover:bg-surface-2 disabled:opacity-50"
     >
       {loading ? "..." : "Résoudre"}
     </button>

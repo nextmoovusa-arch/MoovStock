@@ -3,15 +3,19 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 const COLORS = [
-  "#0f172a", "#16a34a", "#2563eb", "#f59e0b",
-  "#db2777", "#0891b2", "#7c3aed", "#dc2626",
+  "#3fd4b3", "#34d4a8", "#60a5fa", "#a78bfa",
+  "#fbbf24", "#f472b6", "#22d3ee", "#fb923c",
 ];
 
 type Row = { category: string; revenue: number; count: number };
 
 export function CategoryPie({ data }: { data: Row[] }) {
   if (data.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-sm text-slate-500">Pas encore de ventes.</div>;
+    return (
+      <div className="h-64 flex items-center justify-center text-sm text-muted">
+        Pas encore de ventes.
+      </div>
+    );
   }
   return (
     <div className="h-64">
@@ -29,13 +33,23 @@ export function CategoryPie({ data }: { data: Row[] }) {
             }
             labelLine={false}
             fontSize={11}
+            stroke="rgb(15 21 20)"
           >
             {data.map((_, i) => (
               <Cell key={i} fill={COLORS[i % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(v: number) => `${v.toFixed(2)} €`} />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Tooltip
+            formatter={(v: number) => `${v.toFixed(2)} €`}
+            contentStyle={{
+              backgroundColor: "rgb(15 21 20)",
+              border: "1px solid rgb(31 44 41)",
+              borderRadius: 8,
+              color: "rgb(232 242 239)",
+              fontSize: 12,
+            }}
+          />
+          <Legend wrapperStyle={{ fontSize: 12, color: "rgb(232 242 239)" }} />
         </PieChart>
       </ResponsiveContainer>
     </div>

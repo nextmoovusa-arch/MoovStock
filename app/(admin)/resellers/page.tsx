@@ -22,9 +22,9 @@ export default async function ResellersPage() {
         subtitle={`${resellers.length} compte(s) — gère leurs objectifs et leurs paiements.`}
       />
 
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-lg border border-subtle bg-surface overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50">
+          <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Revendeur</th>
               <th className="px-4 py-2 text-right">Articles</th>
@@ -42,18 +42,18 @@ export default async function ResellersPage() {
                 .filter((s) => s.paymentStatus === "PENDING")
                 .reduce((s, x) => s + x.resellerPayout, 0);
               return (
-                <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
+                <tr key={r.id} className="border-t border-subtle/60 hover:bg-surface-2">
                   <td className="px-4 py-3">
                     <Link href={`/resellers/${r.id}`} className="block">
                       <div className="font-medium">{r.name ?? "—"}</div>
-                      <div className="text-xs text-slate-500">{r.email}</div>
+                      <div className="text-xs text-muted">{r.email}</div>
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.items}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.sales}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{eur(ca)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{pct(r.commissionRate)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums font-medium text-amber-700">
+                  <td className="px-4 py-3 text-right tabular-nums font-medium text-warning">
                     {eur(owed)}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{r.dailyGoalItems}</td>
@@ -62,7 +62,7 @@ export default async function ResellersPage() {
             })}
             {resellers.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted">
                   Aucun revendeur pour l&apos;instant. Invite-les à créer un compte via{" "}
                   <Link href="/sign-up" className="underline">
                     /sign-up

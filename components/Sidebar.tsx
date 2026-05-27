@@ -79,11 +79,18 @@ export function Sidebar({
   const items = variant === "admin" ? ADMIN_ITEMS : RESELLER_ITEMS;
 
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col">
-      <div className="px-5 py-5 border-b border-slate-200">
-        <div className="text-lg font-bold text-brand">MoovStock</div>
-        <div className="text-xs uppercase tracking-wider text-slate-500 mt-0.5">
-          {variant === "admin" ? "Espace Admin" : "Espace Revendeur"}
+    <aside className="w-64 shrink-0 bg-surface/80 backdrop-blur border-r border-subtle flex flex-col">
+      <div className="px-5 py-5 border-b border-subtle">
+        <div className="flex items-center gap-2">
+          <div className="size-8 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
+            M
+          </div>
+          <div>
+            <div className="text-base font-semibold tracking-tight">MoovStock</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
+              {variant === "admin" ? "Espace Admin" : "Revendeur"}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -96,21 +103,24 @@ export function Sidebar({
               key={it.href}
               href={it.href}
               className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition",
+                "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition relative",
                 active
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-700 hover:bg-slate-100",
+                  ? "bg-accent-soft text-accent"
+                  : "text-muted hover:text-foreground hover:bg-surface-2",
               )}
             >
-              <Icon className="size-4" />
-              <span className="flex-1">{it.label}</span>
+              {active && (
+                <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-accent" />
+              )}
+              <Icon className={cn("size-4 transition", active ? "text-accent" : "text-muted group-hover:text-foreground")} />
+              <span className="flex-1 font-medium">{it.label}</span>
               {it.badge !== undefined && (
                 <span
                   className={cn(
                     "text-[10px] font-semibold rounded-full px-1.5 py-0.5 min-w-[18px] text-center whitespace-nowrap tabular-nums",
-                    it.badgeTone === "danger" && "bg-rose-500 text-white",
-                    it.badgeTone === "warning" && "bg-amber-400 text-amber-950",
-                    (!it.badgeTone || it.badgeTone === "default") && "bg-slate-200 text-slate-700",
+                    it.badgeTone === "danger" && "bg-danger/20 text-danger",
+                    it.badgeTone === "warning" && "bg-warning/20 text-warning",
+                    (!it.badgeTone || it.badgeTone === "default") && "bg-subtle text-foreground",
                   )}
                 >
                   {it.badge}
@@ -121,11 +131,11 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="p-3 border-t border-slate-200 flex items-center gap-3">
+      <div className="p-3 border-t border-subtle flex items-center gap-3">
         <UserButton afterSignOutUrl="/sign-in" />
-        <div className="text-sm">
-          <div className="font-medium leading-tight truncate max-w-[140px]">{userLabel}</div>
-          <div className="text-xs text-slate-500 capitalize">
+        <div className="text-sm min-w-0">
+          <div className="font-medium leading-tight truncate">{userLabel}</div>
+          <div className="text-xs text-muted capitalize">
             {variant === "admin" ? "admin" : "revendeur"}
           </div>
         </div>
