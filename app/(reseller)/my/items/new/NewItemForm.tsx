@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "@/lib/toast";
 
 export function NewItemForm() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export function NewItemForm() {
     vintedUrl: "",
     status: "IN_STOCK" as "IN_STOCK" | "LISTED",
     notes: "",
+    quantity: 1,
   });
 
   async function submit(e: React.FormEvent) {
@@ -33,9 +35,16 @@ export function NewItemForm() {
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setErr(data.error || "Erreur");
+      toast.error("Création impossible", data.error);
       setLoading(false);
       return;
     }
+    const data = await res.json().catch(() => ({}));
+    const created = data.count ?? 1;
+    toast.success(
+      created > 1 ? `${created} articles créés` : "Article créé",
+      created > 1 ? `${form.title} × ${created}` : form.title,
+    );
     router.push("/my/items");
     router.refresh();
   }
@@ -66,10 +75,35 @@ export function NewItemForm() {
           ]}
         />
       </Row>
-      <Row cols={2}>
-        <NumField label="Prix d'achat (€) *" required value={form.purchasePrice} onChange={(v) => set("purchasePrice", v)} />
+      <Row cols={3}>
+        <NumField label="Prix d'achat unitaire (€) *" required value={form.purchasePrice} onChange={(v) => set("purchasePrice", v)} />
         <NumField label="Prix de mise en vente (€)" value={form.listingPrice} onChange={(v) => set("listingPrice", v)} />
+        <NumField
+          label="Quantité"
+          step={1}
+          value={form.quantity}
+          onChange={(v) => set("quantity", Math.max(1, Math.min(500, Math.round(v))))}
+        />
       </Row>
+
+      {form.quantity > 1 && (
+        <div className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-muted">
+          <span className="text-foreground font-medium">{form.quantity} articles</span> seront créés à
+          l&apos;identique · coût total :{" "}
+          <span className="text-foreground font-medium tabular-nums">
+            {(form.purchasePrice * form.quantity).toFixed(2)} €
+          </span>
+          {form.listingPrice > 0 && (
+            <>
+              {" · "}revenu potentiel :{" "}
+              <span className="text-success font-medium tabular-nums">
+                {(form.listingPrice * form.quantity).toFixed(2)} €
+              </span>
+            </>
+          )}
+        </div>
+      )}
+
       <Row cols={2}>
         <Field label="URL photo" value={form.photoUrl} onChange={(v) => set("photoUrl", v)} placeholder="https://..." />
         <Field label="URL annonce Vinted" value={form.vintedUrl} onChange={(v) => set("vintedUrl", v)} placeholder="https://www.vinted.fr/..." />
@@ -129,18 +163,21 @@ function Field({
 }
 
 function NumField({
-  label, value, onChange, required,
-}: { label: string; value: number; onChange: (v: number) => void; required?: boolean }) {
+  label, value, onChange, required, step = 0.01,
+}: { label: string; value: number; onChange: (v: number) => void; required?: boolean; step?: number }) {
+  const isInt = step === 1;
   return (
     <label>
       <span className="block text-xs text-muted mb-1">{label}</span>
       <input
         type="number"
-        step="0.01"
+        step={step}
         min="0"
         required={required}
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onChange={(e) =>
+          onChange(isInt ? parseInt(e.target.value || "0", 10) || 0 : parseFloat(e.target.value) || 0)
+        }
         className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
       />
     </label>

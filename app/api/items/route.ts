@@ -15,7 +15,10 @@ const CreateItemSchema = z.object({
   vintedUrl: z.string().url().optional().or(z.literal("")).nullable(),
   status: z.enum(["IN_STOCK", "LISTED"]).optional().default("IN_STOCK"),
   notes: z.string().max(2000).optional().nullable(),
+  quantity: z.number().int().min(1).max(500).optional().default(1),
 });
+
+const MAX_BATCH = 500;
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -25,24 +28,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Données invalides", issues: parsed.error.issues }, { status: 400 });
   }
   const data = parsed.data;
+  const quantity = Math.min(MAX_BATCH, Math.max(1, data.quantity ?? 1));
 
-  const item = await prisma.item.create({
-    data: {
-      userId: user.id,
-      title: data.title,
-      brand: data.brand || null,
-      category: data.category || null,
-      size: data.size || null,
-      condition: data.condition || null,
-      purchasePrice: data.purchasePrice,
-      listingPrice: data.listingPrice ?? 0,
-      photoUrl: data.photoUrl || null,
-      vintedUrl: data.vintedUrl || null,
-      status: data.status,
-      listedAt: data.status === "LISTED" ? new Date() : null,
-      notes: data.notes || null,
-    },
+  const now = new Date();
+  const base = {
+    userId: user.id,
+    title: data.title,
+    brand: data.brand || null,
+    category: data.category || null,
+    size: data.size || null,
+    condition: data.condition || null,
+    purchasePrice: data.purchasePrice,
+    listingPrice: data.listingPrice ?? 0,
+    photoUrl: data.photoUrl || null,
+    vintedUrl: data.vintedUrl || null,
+    status: data.status,
+    listedAt: data.status === "LISTED" ? now : null,
+    notes: data.notes || null,
+  };
+
+  if (quantity === 1) {
+    const item = await prisma.item.create({ data: base });
+    return NextResponse.json({ item, count: 1 });
+  }
+
+  // Création en lot : N rows identiques
+  const result = await prisma.item.createMany({
+    data: Array.from({ length: quantity }, () => base),
   });
 
-  return NextResponse.json({ item });
+  return NextResponse.json({ count: result.count });
 }
