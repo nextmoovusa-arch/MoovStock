@@ -48,8 +48,8 @@ export function PayButton({ resellerId, amount }: { resellerId: string; amount: 
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-backdrop-in">
+          <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md p-5 animate-slide-up text-sm">
             <h3 className="font-semibold mb-3">Confirmer le paiement</h3>
             <p className="text-muted mb-4">
               Marquer toutes les ventes en attente comme payées et créer les transactions de

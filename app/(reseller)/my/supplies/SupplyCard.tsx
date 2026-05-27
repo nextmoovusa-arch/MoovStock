@@ -6,6 +6,7 @@ import type { Supply, SupplyMovement, MovementReason } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import { eur, dateFr } from "@/lib/format";
 import type { RestockAnalysis } from "@/lib/supplies";
+import { ProgressBar } from "@/components/ProgressBar";
 
 const TYPE_LABEL: Record<string, string> = {
   POUCH: "Pochettes",
@@ -79,7 +80,7 @@ export function SupplyCard({
   }
 
   return (
-    <div className={cn("rounded-lg border bg-surface p-5", analysis.critical ? "border-danger/40" : "border-subtle")}>
+    <div className={cn("rounded-xl border bg-surface p-5 card-hover animate-fade-in", analysis.critical ? "border-danger/40" : "border-subtle")}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="text-xs uppercase tracking-wide text-muted">
@@ -90,7 +91,15 @@ export function SupplyCard({
         <span className={cn("text-xs font-medium rounded px-2 py-0.5", status.cls)}>{status.label}</span>
       </div>
 
-      <div className="text-3xl font-semibold tabular-nums mb-1">{supply.quantity}</div>
+      <div className="text-3xl font-semibold tabular-nums mb-2">{supply.quantity}</div>
+
+      <ProgressBar
+        value={supply.quantity}
+        max={Math.max(analysis.thresholdUnits * 2, supply.quantity)}
+        tone={analysis.critical ? "danger" : analysis.needsRestock ? "warning" : "success"}
+        className="mb-2"
+      />
+
       <div className="text-xs text-muted mb-4">
         {analysis.avgDaily > 0
           ? `Conso ~${analysis.avgDaily.toFixed(1)}/j · ${

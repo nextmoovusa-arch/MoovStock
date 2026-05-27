@@ -163,6 +163,46 @@ export async function revenueByReseller() {
     .sort((a, b) => b.revenue - a.revenue);
 }
 
+/**
+ * Série quotidienne CA + profit pour les N derniers jours (sparklines).
+ */
+export async function dailyRevenue(days: number = 30) {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  const sales = await prisma.sale.findMany({
+    where: { soldAt: { gte: since } },
+    select: { soldAt: true, soldPrice: true, netProfit: true },
+  });
+
+  const buckets = new Map<string, { revenue: number; profit: number; count: number }>();
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since);
+    d.setDate(since.getDate() + i);
+    const key = ymd(d);
+    buckets.set(key, { revenue: 0, profit: 0, count: 0 });
+  }
+  for (const s of sales) {
+    const key = ymd(new Date(s.soldAt));
+    const b = buckets.get(key);
+    if (!b) continue;
+    b.revenue += s.soldPrice;
+    b.profit += s.netProfit;
+    b.count += 1;
+  }
+  return Array.from(buckets.entries()).map(([date, v]) => ({
+    date,
+    revenue: round2(v.revenue),
+    profit: round2(v.profit),
+    sales: v.count,
+  }));
+}
+
+function ymd(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }

@@ -47,8 +47,8 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-backdrop-in">
+          <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md p-5 animate-slide-up">
             <h3 className="font-semibold mb-3">Marquer comme vendu</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Field label="Prix vendu (€)" value={form.soldPrice} onChange={(v) => setForm({ ...form, soldPrice: v })} />

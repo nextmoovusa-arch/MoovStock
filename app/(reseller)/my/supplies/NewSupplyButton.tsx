@@ -64,8 +64,8 @@ export function NewSupplyButton() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface rounded-lg shadow-xl w-full max-w-md p-5 text-sm">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-backdrop-in">
+          <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md p-5 animate-slide-up text-sm">
             <h3 className="font-semibold mb-3">Nouveau consommable</h3>
             <div className="grid grid-cols-2 gap-3">
               <label className="col-span-2">
