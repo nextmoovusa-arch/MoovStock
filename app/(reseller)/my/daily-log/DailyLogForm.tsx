@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "@/lib/toast";
 
 type Initial = {
   itemsListed: number;
@@ -47,9 +48,11 @@ export function DailyLogForm({
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setErr(data.error || "Erreur");
+      toast.error("Échec de l'enregistrement", data.error);
       return;
     }
     setOk(true);
+    toast.success("Saisie enregistrée", `${form.itemsListed} articles postés aujourd'hui.`);
     router.refresh();
   }
 

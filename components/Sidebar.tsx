@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { eur } from "@/lib/format";
+import { LiveDot } from "./LiveDot";
 import {
   LayoutDashboard,
   Users,
@@ -117,12 +118,13 @@ export function Sidebar({
               {it.badge !== undefined && (
                 <span
                   className={cn(
-                    "text-[10px] font-semibold rounded-full px-1.5 py-0.5 min-w-[18px] text-center whitespace-nowrap tabular-nums",
+                    "text-[10px] font-semibold rounded-full px-1.5 py-0.5 min-w-[18px] text-center whitespace-nowrap tabular-nums inline-flex items-center gap-1",
                     it.badgeTone === "danger" && "bg-danger/20 text-danger",
                     it.badgeTone === "warning" && "bg-warning/20 text-warning",
                     (!it.badgeTone || it.badgeTone === "default") && "bg-subtle text-foreground",
                   )}
                 >
+                  {it.badgeTone === "danger" && <LiveDot tone="danger" size={6} />}
                   {it.badge}
                 </span>
               )}

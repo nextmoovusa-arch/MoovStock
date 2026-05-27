@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { dateFr } from "@/lib/format";
 import { AlertActions } from "./AlertActions";
 import { ScanButton } from "./ScanButton";
+import { LiveDot } from "@/components/LiveDot";
 import type { AlertSeverity, AlertType } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -63,10 +64,11 @@ export default async function AlertsPage() {
             </thead>
             <tbody>
               {openAlerts.map((a) => (
-                <tr key={a.id} className="border-t border-subtle/60">
+                <tr key={a.id} className="border-t border-subtle/60 hover:bg-surface-2 transition-colors">
                   <td className="px-4 py-3 font-medium">{TYPE_LABEL[a.type]}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${SEV_CLS[a.severity]}`}>
+                    <span className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-medium ${SEV_CLS[a.severity]}`}>
+                      {a.severity === "CRITICAL" && <LiveDot tone="danger" size={6} />}
                       {a.severity}
                     </span>
                   </td>

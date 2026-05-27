@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { eur } from "@/lib/format";
+import { toast } from "@/lib/toast";
 
 const ACCOUNTS = [
   { v: "BANK", l: "Banque" },
@@ -32,9 +33,11 @@ export function PayButton({ resellerId, amount }: { resellerId: string; amount: 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setErr(data.error || "Erreur");
+      toast.error("Échec du paiement", data.error);
       return;
     }
     setOpen(false);
+    toast.success(`Paiement de ${eur(amount)} effectué`, "Les ventes sont marquées comme payées.");
     router.refresh();
   }
 

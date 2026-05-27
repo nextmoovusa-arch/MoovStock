@@ -63,18 +63,19 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <KpiCard
           label="Revendeurs actifs"
-          value={String(resellerCount)}
+          animateValue={resellerCount}
           delay={0}
         />
         <KpiCard
           label="Articles en stock"
-          value={String(totalItems)}
+          animateValue={totalItems}
           hint={`${itemsListed} en ligne · ${itemsInStock} non listés`}
           delay={60}
         />
         <KpiCard
           label="CA 30 jours"
-          value={eur(sales30._sum.soldPrice)}
+          animateValue={sales30._sum.soldPrice ?? 0}
+          format={(n) => eur(n)}
           hint={`${sales30._count} ventes`}
           tone="positive"
           spark={revenueSpark}
@@ -82,7 +83,8 @@ export default async function AdminDashboard() {
         />
         <KpiCard
           label="Profit net 30 j"
-          value={eur(sales30._sum.netProfit)}
+          animateValue={sales30._sum.netProfit ?? 0}
+          format={(n) => eur(n)}
           tone="positive"
           spark={profitSpark}
           delay={180}
@@ -92,19 +94,22 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
         <KpiCard
           label="CA cumulé total"
-          value={eur(salesAll._sum.soldPrice)}
+          animateValue={salesAll._sum.soldPrice ?? 0}
+          format={(n) => eur(n)}
           hint={`${salesAll._count} ventes au total`}
           delay={220}
         />
         <KpiCard
           label="Profit net total"
-          value={eur(salesAll._sum.netProfit)}
+          animateValue={salesAll._sum.netProfit ?? 0}
+          format={(n) => eur(n)}
           spark={salesSpark}
           delay={280}
         />
         <KpiCard
           label="À verser aux revendeurs"
-          value={eur(pendingPayouts._sum.resellerPayout)}
+          animateValue={pendingPayouts._sum.resellerPayout ?? 0}
+          format={(n) => eur(n)}
           tone="warning"
           delay={340}
         />

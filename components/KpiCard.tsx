@@ -1,6 +1,12 @@
 import { cn } from "@/lib/utils";
 import { Sparkline } from "./Sparkline";
+import { AnimatedNumber } from "./AnimatedNumber";
 
+/**
+ * KpiCard.
+ * Si `animateValue` est fourni (number), affiche un compteur animé formaté
+ * via `format`. Sinon affiche `value` (string) directement.
+ */
 export function KpiCard({
   label,
   value,
@@ -8,13 +14,17 @@ export function KpiCard({
   tone = "default",
   spark,
   delay = 0,
+  animateValue,
+  format,
 }: {
   label: string;
-  value: string;
+  value?: string;
   hint?: string;
   tone?: "default" | "positive" | "negative" | "warning";
   spark?: number[];
   delay?: number;
+  animateValue?: number;
+  format?: (n: number) => string;
 }) {
   const sparkColor =
     tone === "positive" ? "rgb(52 211 153)" :
@@ -38,7 +48,14 @@ export function KpiCard({
           tone === "default" && "text-foreground",
         )}
       >
-        {value}
+        {animateValue !== undefined ? (
+          <AnimatedNumber
+            value={animateValue}
+            format={format ?? ((n) => Math.round(n).toString())}
+          />
+        ) : (
+          value
+        )}
       </div>
       {hint && <div className="mt-1 text-xs text-muted">{hint}</div>}
       {spark && spark.length >= 2 && (

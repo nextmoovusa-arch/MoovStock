@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/Toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className="relative overflow-x-hidden">
           <div className="pointer-events-none fixed inset-x-0 -top-40 h-[420px] bg-brand-glow" />
           <div className="relative">{children}</div>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

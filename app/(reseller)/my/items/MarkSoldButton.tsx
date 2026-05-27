@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "@/lib/toast";
 
 export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggested: number }) {
   const router = useRouter();
@@ -29,11 +30,13 @@ export function MarkSoldButton({ itemId, suggested }: { itemId: string; suggeste
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setErr(data.error || "Erreur");
+      toast.error("Échec de la vente", data.error);
       setLoading(false);
       return;
     }
     setOpen(false);
     setLoading(false);
+    toast.success("Vente enregistrée", `Article vendu ${form.soldPrice.toFixed(2)} €`);
     router.refresh();
   }
 
