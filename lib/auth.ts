@@ -5,7 +5,10 @@ import type { Role, User } from "@prisma/client";
 
 /**
  * Renvoie l'utilisateur DB lié au Clerk user courant.
- * Le crée à la volée si le webhook n'a pas encore tourné.
+ * - Si un User existe déjà avec ce clerkId → renvoyé tel quel.
+ * - Sinon, si un User placeholder existe pour cet email (créé via "Inviter
+ *   revendeur"), on l'attache au clerkId.
+ * - Sinon on crée un nouveau (ADMIN si premier, RESELLER sinon).
  */
 export async function getOrCreateDbUser(): Promise<User | null> {
   const { userId } = await auth();
@@ -22,6 +25,21 @@ export async function getOrCreateDbUser(): Promise<User | null> {
       ?.emailAddress ?? clerkUser.emailAddresses[0]?.emailAddress;
 
   if (!email) return null;
+  const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+
+  // Lookup par email — si un placeholder existe, on l'attache
+  const placeholder = await prisma.user.findUnique({ where: { email } });
+  if (placeholder) {
+    user = await prisma.user.update({
+      where: { id: placeholder.id },
+      data: {
+        clerkId: userId,
+        name: placeholder.name ?? name,
+        imageUrl: clerkUser.imageUrl,
+      },
+    });
+    return user;
+  }
 
   // Premier utilisateur inscrit = ADMIN automatique
   const userCount = await prisma.user.count();
@@ -31,7 +49,7 @@ export async function getOrCreateDbUser(): Promise<User | null> {
     data: {
       clerkId: userId,
       email,
-      name: [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null,
+      name,
       imageUrl: clerkUser.imageUrl,
       role,
     },

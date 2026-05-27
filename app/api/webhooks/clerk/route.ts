@@ -56,6 +56,20 @@ export async function POST(req: Request) {
           where: { clerkId: data.id },
           data: { email, name, imageUrl: data.image_url },
         });
+        break;
+      }
+
+      // Lookup placeholder par email (invitation revendeur)
+      const placeholder = await prisma.user.findUnique({ where: { email } });
+      if (placeholder) {
+        await prisma.user.update({
+          where: { id: placeholder.id },
+          data: {
+            clerkId: data.id,
+            name: placeholder.name ?? name,
+            imageUrl: data.image_url,
+          },
+        });
       } else {
         const userCount = await prisma.user.count();
         await prisma.user.create({

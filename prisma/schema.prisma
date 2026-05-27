@@ -86,7 +86,7 @@ enum Account {
 
 model User {
   id              String   @id @default(cuid())
-  clerkId         String   @unique
+  clerkId         String?  @unique // null = invité, pas encore inscrit
   email           String   @unique
   name            String?
   imageUrl        String?
