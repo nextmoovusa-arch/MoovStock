@@ -420,6 +420,196 @@ export async function categoryStats(): Promise<CategoryStat[]> {
   return result;
 }
 
+/**
+ * Distribution du multiplicateur (soldPrice/purchasePrice - 1).
+ * Buckets : <0 (perte), 0-0.5, 0.5-1, 1-1.5, 1.5-2, 2-3, 3+
+ */
+export async function multiplierDistribution(): Promise<{ label: string; count: number }[]> {
+  const sales = await prisma.sale.findMany({
+    select: { soldPrice: true, item: { select: { purchasePrice: true } } },
+  });
+  const buckets = [
+    { label: "Perte", min: -Infinity, max: 0 },
+    { label: "×0–0.5", min: 0, max: 0.5 },
+    { label: "×0.5–1", min: 0.5, max: 1 },
+    { label: "×1–1.5", min: 1, max: 1.5 },
+    { label: "×1.5–2", min: 1.5, max: 2 },
+    { label: "×2–3", min: 2, max: 3 },
+    { label: "×3+", min: 3, max: Infinity },
+  ];
+  const out = buckets.map((b) => ({ label: b.label, count: 0 }));
+  for (const s of sales) {
+    if (s.item.purchasePrice <= 0) continue;
+    const m = s.soldPrice / s.item.purchasePrice - 1;
+    const idx = buckets.findIndex((b) => m >= b.min && m < b.max);
+    if (idx >= 0) out[idx].count += 1;
+  }
+  return out;
+}
+
+/**
+ * Distribution du délai de vente (créé → vendu, en jours).
+ */
+export async function daysToSellDistribution(): Promise<{ label: string; count: number }[]> {
+  const sales = await prisma.sale.findMany({
+    select: { soldAt: true, item: { select: { createdAt: true } } },
+  });
+  const buckets = [
+    { label: "< 1 j", min: 0, max: 1 },
+    { label: "1–3 j", min: 1, max: 3 },
+    { label: "3–7 j", min: 3, max: 7 },
+    { label: "1–2 sem", min: 7, max: 14 },
+    { label: "2–4 sem", min: 14, max: 30 },
+    { label: "1–3 mois", min: 30, max: 90 },
+    { label: "3 mois +", min: 90, max: Infinity },
+  ];
+  const out = buckets.map((b) => ({ label: b.label, count: 0 }));
+  for (const s of sales) {
+    if (!s.item.createdAt) continue;
+    const days =
+      (new Date(s.soldAt).getTime() - new Date(s.item.createdAt).getTime()) / 86400000;
+    if (days < 0) continue;
+    const idx = buckets.findIndex((b) => days >= b.min && days < b.max);
+    if (idx >= 0) out[idx].count += 1;
+  }
+  return out;
+}
+
+/**
+ * Répartition des ventes par jour de la semaine (Lundi = 0).
+ */
+export async function salesByDayOfWeek(): Promise<{ day: string; sales: number; revenue: number }[]> {
+  const sales = await prisma.sale.findMany({
+    select: { soldAt: true, soldPrice: true },
+  });
+  const labels = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+  const out = labels.map((day) => ({ day, sales: 0, revenue: 0 }));
+  for (const s of sales) {
+    const jsDay = new Date(s.soldAt).getDay(); // 0=Dim, 1=Lun…
+    const idx = (jsDay + 6) % 7; // Lun=0
+    out[idx].sales += 1;
+    out[idx].revenue += s.soldPrice;
+  }
+  return out.map((d) => ({ ...d, revenue: round2(d.revenue) }));
+}
+
+/**
+ * Top marques (revenue, profit, multiplicateur moyen, nb ventes).
+ */
+export async function topBrands(limit: number = 10): Promise<{
+  brand: string;
+  sales: number;
+  revenue: number;
+  profit: number;
+  avgMultiplier: number;
+}[]> {
+  const sales = await prisma.sale.findMany({
+    select: {
+      soldPrice: true,
+      netProfit: true,
+      item: { select: { brand: true, purchasePrice: true } },
+    },
+  });
+  const map = new Map<string, { sales: number; revenue: number; profit: number; multSum: number; multCount: number }>();
+  for (const s of sales) {
+    const b = (s.item.brand && s.item.brand.trim()) || "Sans marque";
+    const bucket = map.get(b) ?? { sales: 0, revenue: 0, profit: 0, multSum: 0, multCount: 0 };
+    bucket.sales += 1;
+    bucket.revenue += s.soldPrice;
+    bucket.profit += s.netProfit;
+    if (s.item.purchasePrice > 0) {
+      bucket.multSum += s.soldPrice / s.item.purchasePrice - 1;
+      bucket.multCount += 1;
+    }
+    map.set(b, bucket);
+  }
+  return Array.from(map.entries())
+    .map(([brand, v]) => ({
+      brand,
+      sales: v.sales,
+      revenue: round2(v.revenue),
+      profit: round2(v.profit),
+      avgMultiplier: v.multCount > 0 ? v.multSum / v.multCount : 0,
+    }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, limit);
+}
+
+/**
+ * Aging stock : articles encore en LISTED dont la dernière mise en ligne
+ * date de plus de `days` jours.
+ */
+export async function agingStock(days: number = 60) {
+  const threshold = new Date(Date.now() - days * 86400000);
+  return prisma.item.findMany({
+    where: {
+      status: "LISTED",
+      listedAt: { lt: threshold },
+    },
+    orderBy: { listedAt: "asc" },
+    select: {
+      id: true,
+      title: true,
+      brand: true,
+      category: true,
+      subcategory: true,
+      purchasePrice: true,
+      listingPrice: true,
+      listedAt: true,
+      user: { select: { name: true, email: true } },
+    },
+    take: 30,
+  });
+}
+
+/**
+ * Métriques globales avancées :
+ * - sellThrough : % articles déjà vendus / (vendus + encore en stock listés)
+ * - avgDaysToSell : moyenne createdAt → soldAt
+ * - avgDaysToList : moyenne createdAt → listedAt
+ */
+export async function advancedKpis() {
+  const [soldCount, totalListedOrStock, allSales, listedItems] = await Promise.all([
+    prisma.item.count({ where: { status: "SOLD" } }),
+    prisma.item.count({ where: { status: { in: ["SOLD", "LISTED", "IN_STOCK"] } } }),
+    prisma.sale.findMany({
+      select: { soldAt: true, item: { select: { createdAt: true } } },
+    }),
+    prisma.item.findMany({
+      where: { listedAt: { not: null } },
+      select: { createdAt: true, listedAt: true },
+    }),
+  ]);
+
+  const sellThrough = totalListedOrStock > 0 ? soldCount / totalListedOrStock : 0;
+
+  let daysToSellSum = 0;
+  let daysToSellCount = 0;
+  for (const s of allSales) {
+    if (!s.item.createdAt) continue;
+    const d = (new Date(s.soldAt).getTime() - new Date(s.item.createdAt).getTime()) / 86400000;
+    if (d >= 0) {
+      daysToSellSum += d;
+      daysToSellCount += 1;
+    }
+  }
+  const avgDaysToSell = daysToSellCount > 0 ? daysToSellSum / daysToSellCount : null;
+
+  let daysToListSum = 0;
+  let daysToListCount = 0;
+  for (const i of listedItems) {
+    if (!i.listedAt) continue;
+    const d = (new Date(i.listedAt).getTime() - new Date(i.createdAt).getTime()) / 86400000;
+    if (d >= 0) {
+      daysToListSum += d;
+      daysToListCount += 1;
+    }
+  }
+  const avgDaysToList = daysToListCount > 0 ? daysToListSum / daysToListCount : null;
+
+  return { sellThrough, avgDaysToSell, avgDaysToList };
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }

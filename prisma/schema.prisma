@@ -94,6 +94,11 @@ model User {
   dailyGoalItems  Int      @default(5)
   commissionRate  Float    @default(0.5) // 0..1, part reversée au revendeur
   active          Boolean  @default(true)
+
+  // Paramètres business (uniquement pour l'admin)
+  businessMode    Boolean  @default(false)  // false = particulier, true = entreprise
+  taxRate         Float    @default(0.25)   // taux d'impôts (25% IS par défaut)
+  urssafRate      Float    @default(0.22)   // taux URSSAF micro-BNC
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

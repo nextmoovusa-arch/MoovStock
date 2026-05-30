@@ -5,6 +5,7 @@ import { eur } from "@/lib/format";
 import { InviteResellerButton } from "./InviteResellerButton";
 import { CommissionEdit } from "./CommissionEdit";
 import { ViewAsButton } from "./ViewAsButton";
+import { DeleteResellerButton } from "./DeleteResellerButton";
 import { Mail } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,14 @@ export default async function ResellersPage() {
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{r.dailyGoalItems}</td>
                   <td className="px-4 py-3 text-right">
-                    <ViewAsButton resellerId={r.id} label={r.name ?? r.email} />
+                    <div className="inline-flex gap-1">
+                      <ViewAsButton resellerId={r.id} label={r.name ?? r.email} />
+                      <DeleteResellerButton
+                        resellerId={r.id}
+                        label={r.name ?? r.email}
+                        hasSales={r._count.sales > 0}
+                      />
+                    </div>
                   </td>
                 </tr>
               );

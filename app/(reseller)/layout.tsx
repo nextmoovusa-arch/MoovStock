@@ -32,7 +32,7 @@ export default async function ResellerLayout({ children }: { children: React.Rea
   return (
     <div className="flex min-h-screen">
       <Sidebar
-        variant="reseller"
+        isAdmin={user.role === "ADMIN" && !impersonation.isImpersonating}
         userLabel={user.name ?? user.email}
         badges={{ dailyLogPending: !todayLog, suppliesAlert }}
       />
