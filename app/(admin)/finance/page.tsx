@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { PageHeader } from "@/components/PageHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { eur, dateFr } from "@/lib/format";
-import { cashByAccount, pendingPayoutsByReseller, totalCash } from "@/lib/finance";
+import { cashByAccount, pendingPayoutsByReseller } from "@/lib/finance";
 import { NewTransactionButton } from "./NewTransactionButton";
 import { ACCOUNT_LABEL, CATEGORY_LABEL, TYPE_LABEL } from "./labels";
 
@@ -13,9 +13,8 @@ export const dynamic = "force-dynamic";
 export default async function FinancePage() {
   await requireAdmin();
 
-  const [accounts, total, debts, recent, sales30, expenses30] = await Promise.all([
+  const [accounts, debts, recent, sales30, expenses30] = await Promise.all([
     cashByAccount(),
-    totalCash(),
     pendingPayoutsByReseller(),
     prisma.transaction.findMany({
       orderBy: { date: "desc" },
@@ -35,42 +34,53 @@ export default async function FinancePage() {
     }),
   ]);
 
+  const bankBalance = accounts.find((a) => a.account === "BANK")?.balance ?? 0;
   const totalDebts = debts.reduce((s, d) => s + d.amount, 0);
-  const cashRéel = total - totalDebts;
+  const cashReel = bankBalance - totalDebts;
 
   return (
     <>
       <PageHeader
         title="Trésorerie"
-        subtitle="Cash par compte, dépenses, dettes envers tes revendeurs."
+        subtitle="Compte bancaire, dépenses, dettes envers tes revendeurs."
         action={<NewTransactionButton />}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard label="Cash total" value={eur(total)} hint="Tous comptes confondus" />
+        <KpiCard
+          label="Compte bancaire"
+          animateValue={bankBalance}
+          format="eur"
+          tone={bankBalance < 0 ? "negative" : "default"}
+          delay={0}
+        />
         <KpiCard
           label="Dettes revendeurs"
-          value={eur(totalDebts)}
+          animateValue={totalDebts}
+          format="eur"
           hint={`${debts.length} revendeur(s)`}
           tone={totalDebts > 0 ? "warning" : "default"}
+          delay={60}
         />
         <KpiCard
           label="Cash réel dispo"
-          value={eur(cashRéel)}
+          animateValue={cashReel}
+          format="eur"
           hint="Après paiement des dettes"
-          tone={cashRéel < 0 ? "negative" : "positive"}
+          tone={cashReel < 0 ? "negative" : "positive"}
+          delay={120}
         />
-        <KpiCard label="Profit net 30 j" value={eur(sales30._sum.netProfit)} tone="positive" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
-        {accounts.map((a) => (
-          <KpiCard key={a.account} label={ACCOUNT_LABEL[a.account]} value={eur(a.balance)} />
-        ))}
+        <KpiCard
+          label="Profit net 30 j"
+          animateValue={sales30._sum.netProfit ?? 0}
+          format="eur"
+          tone="positive"
+          delay={180}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <section className="lg:col-span-2 rounded-lg border border-subtle bg-surface overflow-hidden">
+        <section className="lg:col-span-2 rounded-xl border border-subtle bg-surface overflow-hidden">
           <div className="px-4 py-3 border-b border-subtle flex justify-between items-center">
             <h2 className="font-medium">Dernières transactions</h2>
             <Link href="/finance/transactions" className="text-sm text-muted hover:text-foreground">
@@ -80,7 +90,7 @@ export default async function FinancePage() {
           {recent.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted">
               Aucune transaction.{" "}
-              <span className="text-muted-strong">Clique sur « + » pour en ajouter.</span>
+              <span className="text-muted-strong">Clique sur « Transaction » pour en ajouter.</span>
             </div>
           ) : (
             <table className="w-full text-sm">
@@ -95,7 +105,7 @@ export default async function FinancePage() {
               </thead>
               <tbody>
                 {recent.map((t) => (
-                  <tr key={t.id} className="border-t border-subtle/60">
+                  <tr key={t.id} className="border-t border-subtle/60 hover:bg-surface-2 transition-colors">
                     <td className="px-4 py-2 text-muted">{dateFr(t.date)}</td>
                     <td className="px-4 py-2">
                       <div className="font-medium">{CATEGORY_LABEL[t.category]}</div>
@@ -123,7 +133,7 @@ export default async function FinancePage() {
           )}
         </section>
 
-        <section className="rounded-lg border border-subtle bg-surface">
+        <section className="rounded-xl border border-subtle bg-surface">
           <div className="px-4 py-3 border-b border-subtle flex justify-between items-center">
             <h2 className="font-medium">Dettes revendeurs</h2>
             <Link href="/finance/debts" className="text-sm text-muted hover:text-foreground">

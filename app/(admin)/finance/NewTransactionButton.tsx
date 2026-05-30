@@ -23,14 +23,6 @@ const CATEGORIES = [
   { v: "OTHER", l: "Autre" },
 ];
 
-const ACCOUNTS = [
-  { v: "CASH", l: "Espèces" },
-  { v: "BANK", l: "Banque" },
-  { v: "PAYPAL", l: "PayPal" },
-  { v: "REVOLUT", l: "Revolut" },
-  { v: "OTHER", l: "Autre" },
-];
-
 export function NewTransactionButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -39,7 +31,7 @@ export function NewTransactionButton() {
   const [form, setForm] = useState({
     type: "EXPENSE",
     category: "STOCK_BUY",
-    account: "BANK",
+    account: "BANK", // forcé au compte bancaire
     amount: 0,
     date: new Date().toISOString().slice(0, 10),
     note: "",
@@ -84,8 +76,7 @@ export function NewTransactionButton() {
             <div className="grid grid-cols-2 gap-3">
               <Select label="Type" value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={TYPES} />
               <Select label="Catégorie" value={form.category} onChange={(v) => setForm({ ...form, category: v })} options={CATEGORIES} />
-              <Select label="Compte" value={form.account} onChange={(v) => setForm({ ...form, account: v })} options={ACCOUNTS} />
-              <label>
+              <label className="col-span-2">
                 <span className="block text-xs text-muted mb-1">Montant (€)</span>
                 <input
                   type="number"
