@@ -1,6 +1,8 @@
 import { PageHeader } from "@/components/PageHeader";
 import { NewItemForm } from "./NewItemForm";
 
+export const dynamic = "force-dynamic";
+
 export default function NewItemPage() {
   return (
     <>

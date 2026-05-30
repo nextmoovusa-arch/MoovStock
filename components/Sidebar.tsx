@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { eur } from "@/lib/format";
 import { LiveDot } from "./LiveDot";
@@ -133,9 +134,7 @@ export function Sidebar({
       </nav>
 
       <div className="p-3 border-t border-subtle flex items-center gap-3">
-        <div className="size-8 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent text-sm font-semibold">
-          {(userLabel[0] ?? "M").toUpperCase()}
-        </div>
+        <UserButton afterSignOutUrl="/sign-in" />
         <div className="text-sm min-w-0">
           <div className="font-medium leading-tight truncate">{userLabel}</div>
           <div className="text-xs text-muted capitalize">
