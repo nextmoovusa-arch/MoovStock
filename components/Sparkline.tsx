@@ -2,9 +2,6 @@
 
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
-/**
- * Mini sparkline pour KpiCard. Aucune axe, juste la silhouette.
- */
 export function Sparkline({
   data,
   color = "rgb(63 212 179)",
@@ -23,7 +20,8 @@ export function Sparkline({
         <AreaChart data={points} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
           <defs>
             <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.55} />
+              <stop offset="60%" stopColor={color} stopOpacity={0.15} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -31,10 +29,12 @@ export function Sparkline({
             type="monotone"
             dataKey="v"
             stroke={color}
-            strokeWidth={1.5}
+            strokeWidth={1.75}
             fill={`url(#${id})`}
             isAnimationActive={true}
-            animationDuration={700}
+            animationDuration={800}
+            animationEasing="ease-out"
+            dot={false}
           />
         </AreaChart>
       </ResponsiveContainer>

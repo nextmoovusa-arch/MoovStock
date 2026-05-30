@@ -3,7 +3,7 @@
 import {
   ResponsiveContainer,
   ComposedChart,
-  Bar,
+  Area,
   Line,
   XAxis,
   YAxis,
@@ -23,33 +23,73 @@ export function RevenueProfitChart({ data }: { data: Row[] }) {
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
-          <CartesianGrid stroke="rgb(31 44 41)" />
-          <XAxis dataKey="label" tick={{ fontSize: 12, fill: "rgb(142 158 154)" }} stroke="rgb(31 44 41)" />
+          <defs>
+            <linearGradient id="rp-rev" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(63, 212, 179)" stopOpacity={0.55} />
+              <stop offset="100%" stopColor="rgb(63, 212, 179)" stopOpacity={0} />
+            </linearGradient>
+            <filter id="rp-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <CartesianGrid stroke="rgb(31 44 41)" strokeDasharray="3 6" vertical={false} />
+          <XAxis
+            dataKey="label"
+            tick={{ fontSize: 11, fill: "rgb(142 158 154)" }}
+            stroke="transparent"
+            tickLine={false}
+            axisLine={false}
+          />
           <YAxis
-            tick={{ fontSize: 12, fill: "rgb(142 158 154)" }}
+            tick={{ fontSize: 11, fill: "rgb(142 158 154)" }}
             tickFormatter={(v: number) => `${Math.round(v)} €`}
-            stroke="rgb(31 44 41)"
+            stroke="transparent"
+            tickLine={false}
+            axisLine={false}
             width={60}
           />
           <Tooltip
             formatter={(v: number) => `${v.toFixed(2)} €`}
-            cursor={{ fill: "rgba(63, 212, 179, 0.06)" }}
+            cursor={{ stroke: "rgba(63, 212, 179, 0.5)", strokeDasharray: "3 3" }}
             contentStyle={{
-              backgroundColor: "rgb(15 21 20)",
-              border: "1px solid rgb(31 44 41)",
-              borderRadius: 8,
+              backgroundColor: "rgba(15, 21, 20, 0.95)",
+              border: "1px solid rgba(63, 212, 179, 0.3)",
+              borderRadius: 10,
               color: "rgb(232 242 239)",
               fontSize: 12,
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(8px)",
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 12, color: "rgb(232 242 239)" }} />
-          <Bar dataKey="revenue" name="CA" fill="rgba(63, 212, 179, 0.85)" radius={[4, 4, 0, 0]} />
+          <Legend wrapperStyle={{ fontSize: 12, color: "rgb(232 242 239)" }} iconType="circle" />
+          <Area
+            type="monotone"
+            dataKey="revenue"
+            name="CA"
+            stroke="rgb(63, 212, 179)"
+            strokeWidth={2}
+            fill="url(#rp-rev)"
+            animationDuration={900}
+            dot={false}
+            activeDot={{ r: 4, fill: "rgb(63, 212, 179)", stroke: "rgb(15, 21, 20)", strokeWidth: 2 }}
+          />
           <Line
             dataKey="netProfit"
             name="Profit net"
-            stroke="rgb(52 211 153)"
-            strokeWidth={2}
-            dot={{ r: 3, fill: "rgb(52 211 153)" }}
+            stroke="rgb(52, 211, 153)"
+            strokeWidth={2.5}
+            dot={false}
+            activeDot={{
+              r: 5,
+              fill: "rgb(52, 211, 153)",
+              stroke: "rgb(15, 21, 20)",
+              strokeWidth: 2,
+              filter: "url(#rp-glow)",
+            }}
           />
         </ComposedChart>
       </ResponsiveContainer>

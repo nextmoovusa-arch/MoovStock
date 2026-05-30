@@ -1,10 +1,12 @@
 import { Sidebar } from "@/components/Sidebar";
-import { requireReseller } from "@/lib/auth";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { requireReseller, getImpersonationContext } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { analyzeSupply } from "@/lib/supplies";
 
 export default async function ResellerLayout({ children }: { children: React.ReactNode }) {
   const user = await requireReseller();
+  const impersonation = await getImpersonationContext();
 
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
@@ -34,7 +36,12 @@ export default async function ResellerLayout({ children }: { children: React.Rea
         userLabel={user.name ?? user.email}
         badges={{ dailyLogPending: !todayLog, suppliesAlert }}
       />
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 flex flex-col">
+        {impersonation.isImpersonating && impersonation.user && (
+          <ImpersonationBanner label={impersonation.user.name ?? impersonation.user.email} />
+        )}
+        <div className="flex-1 p-8">{children}</div>
+      </main>
     </div>
   );
 }

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/PageHeader";
-import { eur, pct } from "@/lib/format";
+import { eur } from "@/lib/format";
 import { InviteResellerButton } from "./InviteResellerButton";
+import { CommissionEdit } from "./CommissionEdit";
+import { ViewAsButton } from "./ViewAsButton";
 import { Mail } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -17,14 +19,11 @@ export default async function ResellersPage() {
     },
   });
 
-  const active = resellers.filter((r) => r.clerkId);
-  const pending = resellers.filter((r) => !r.clerkId);
-
   return (
     <>
       <PageHeader
         title="Revendeurs"
-        subtitle={`${active.length} actif(s)${pending.length ? ` · ${pending.length} en attente` : ""}`}
+        subtitle={`${resellers.length} compte(s) — clique sur le % pour modifier le partage.`}
         action={<InviteResellerButton />}
       />
 
@@ -36,9 +35,10 @@ export default async function ResellersPage() {
               <th className="px-4 py-2 text-right">Articles</th>
               <th className="px-4 py-2 text-right">Ventes</th>
               <th className="px-4 py-2 text-right">CA</th>
-              <th className="px-4 py-2 text-right">Commission</th>
+              <th className="px-4 py-2 text-right">Partage</th>
               <th className="px-4 py-2 text-right">Dû</th>
               <th className="px-4 py-2 text-right">Obj./j</th>
+              <th className="px-4 py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -70,17 +70,22 @@ export default async function ResellersPage() {
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.items}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{r._count.sales}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{eur(ca)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{pct(r.commissionRate)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <CommissionEdit resellerId={r.id} initial={r.commissionRate} />
+                  </td>
                   <td className="px-4 py-3 text-right tabular-nums font-medium text-warning">
                     {eur(owed)}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{r.dailyGoalItems}</td>
+                  <td className="px-4 py-3 text-right">
+                    <ViewAsButton resellerId={r.id} label={r.name ?? r.email} />
+                  </td>
                 </tr>
               );
             })}
             {resellers.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted">
+                <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted">
                   Aucun revendeur pour l&apos;instant. Clique sur{" "}
                   <span className="text-foreground font-medium">« Inviter un revendeur »</span> pour
                   commencer.
