@@ -284,7 +284,7 @@ export default async function AnalyticsPage() {
       {/* Bloc 7 : Aging stock */}
       {aging.length > 0 && (
         <section className="rounded-xl border border-warning/30 bg-warning/5 p-6 mb-6">
-          <h2 className="font-medium mb-1">⚠️ Stock dormant (> 60 j en ligne)</h2>
+          <h2 className="font-medium mb-1">⚠️ Stock dormant (plus de 60 j en ligne)</h2>
           <p className="text-xs text-muted mb-4">Articles à remettre en avant ou rebaisser.</p>
           <div className="rounded-lg border border-subtle overflow-hidden bg-surface">
             <div className="overflow-x-auto">
