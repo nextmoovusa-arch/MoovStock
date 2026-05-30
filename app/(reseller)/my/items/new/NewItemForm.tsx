@@ -27,10 +27,11 @@ export function NewItemForm() {
     e.preventDefault();
     setLoading(true);
     setErr(null);
+    const suggested = +(form.purchasePrice * 2).toFixed(2);
     const res = await fetch("/api/items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, listingPrice: suggested }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -77,7 +78,12 @@ export function NewItemForm() {
       </Row>
       <Row cols={3}>
         <NumField label="Prix d'achat unitaire (€) *" required value={form.purchasePrice} onChange={(v) => set("purchasePrice", v)} />
-        <NumField label="Prix de mise en vente (€)" value={form.listingPrice} onChange={(v) => set("listingPrice", v)} />
+        <div>
+          <span className="block text-xs text-muted mb-1">Prix conseillé (×2)</span>
+          <div className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 tabular-nums text-success font-medium">
+            {(form.purchasePrice * 2).toFixed(2)} €
+          </div>
+        </div>
         <NumField
           label="Quantité"
           step={1}
@@ -93,11 +99,11 @@ export function NewItemForm() {
           <span className="text-foreground font-medium tabular-nums">
             {(form.purchasePrice * form.quantity).toFixed(2)} €
           </span>
-          {form.listingPrice > 0 && (
+          {form.purchasePrice > 0 && (
             <>
               {" · "}revenu potentiel :{" "}
               <span className="text-success font-medium tabular-nums">
-                {(form.listingPrice * form.quantity).toFixed(2)} €
+                {(form.purchasePrice * 2 * form.quantity).toFixed(2)} €
               </span>
             </>
           )}
