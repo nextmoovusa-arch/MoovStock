@@ -3,22 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "@/lib/toast";
-
-const CATEGORIES = [
-  "Femmes",
-  "Hommes",
-  "Enfants",
-  "Chaussures",
-  "Sacs",
-  "Accessoires",
-  "Bijoux",
-  "Beauté",
-  "Maison",
-  "Électronique",
-  "Sport & Loisirs",
-  "Livres & Jeux",
-  "Autre",
-];
+import { CATEGORIES, MAIN_CATEGORIES, getSubcategories } from "@/lib/categories";
 
 export function NewItemForm() {
   const router = useRouter();
@@ -29,10 +14,13 @@ export function NewItemForm() {
     title: "",
     brand: "",
     category: "Femmes",
+    subcategory: CATEGORIES["Femmes"][0] ?? "",
     purchasePrice: 0,
     listingPrice: 0,
     quantity: 1,
   });
+
+  const subOptions = getSubcategories(form.category);
 
   const suggested = +(form.purchasePrice * 2).toFixed(2);
   const effectiveListing = customListing ? form.listingPrice : suggested;
@@ -48,6 +36,7 @@ export function NewItemForm() {
         title: form.title,
         brand: form.brand || null,
         category: form.category,
+        subcategory: form.subcategory || null,
         purchasePrice: form.purchasePrice,
         listingPrice: effectiveListing,
         quantity: form.quantity,
@@ -105,14 +94,32 @@ export function NewItemForm() {
           <span className="block text-xs text-muted mb-1">Catégorie</span>
           <select
             value={form.category}
-            onChange={(e) => set("category", e.target.value)}
+            onChange={(e) => {
+              const newCat = e.target.value;
+              const firstSub = getSubcategories(newCat)[0] ?? "";
+              setForm((f) => ({ ...f, category: newCat, subcategory: firstSub }));
+            }}
             className="w-full rounded-md border border-input px-3 py-2 bg-surface"
           >
-            {CATEGORIES.map((c) => (
+            {MAIN_CATEGORIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <span className="block text-xs text-muted mb-1">Sous-catégorie</span>
+        <select
+          value={form.subcategory}
+          onChange={(e) => set("subcategory", e.target.value)}
+          className="w-full rounded-md border border-input px-3 py-2 bg-surface"
+          disabled={subOptions.length === 0}
+        >
+          {subOptions.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

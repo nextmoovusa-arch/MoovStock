@@ -225,6 +225,7 @@ model Item {
 
   title          String
   category       String?
+  subcategory    String?
   brand          String?
   size           String?
   condition      String?    // "Neuf avec étiquette", "Très bon état", etc.

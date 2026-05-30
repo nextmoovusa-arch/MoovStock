@@ -290,6 +290,136 @@ export async function monthlyProfitWithCosts(monthsBack: number = 12) {
   }));
 }
 
+/**
+ * Statistiques agrégées par catégorie (et sous-catégorie).
+ * - sales : nombre de ventes
+ * - revenue, profit : sommes
+ * - avgMultiplier : moyenne de (soldPrice / purchasePrice - 1)
+ * - avgDaysToSell : jours moyens entre createdAt de l'item et soldAt
+ * - stockListed : combien d'articles encore en stock dans cette catégorie
+ */
+export interface CategoryStat {
+  category: string;
+  subcategory: string | null;
+  sales: number;
+  revenue: number;
+  profit: number;
+  avgMultiplier: number;
+  avgDaysToSell: number | null;
+  stockListed: number;
+}
+
+export async function categoryStats(): Promise<CategoryStat[]> {
+  const [sales, stock] = await Promise.all([
+    prisma.sale.findMany({
+      select: {
+        soldPrice: true,
+        netProfit: true,
+        soldAt: true,
+        item: {
+          select: {
+            category: true,
+            subcategory: true,
+            purchasePrice: true,
+            createdAt: true,
+          },
+        },
+      },
+    }),
+    prisma.item.groupBy({
+      by: ["category", "subcategory"],
+      where: { status: { in: ["IN_STOCK", "LISTED"] } },
+      _count: true,
+    }),
+  ]);
+
+  // Aggrégation des ventes
+  const map = new Map<string, {
+    category: string;
+    subcategory: string | null;
+    sales: number;
+    revenue: number;
+    profit: number;
+    multSum: number;
+    multCount: number;
+    daysSum: number;
+    daysCount: number;
+  }>();
+
+  for (const s of sales) {
+    const cat = s.item.category ?? "Sans catégorie";
+    const sub = s.item.subcategory ?? null;
+    const key = `${cat}::${sub ?? ""}`;
+    const bucket = map.get(key) ?? {
+      category: cat,
+      subcategory: sub,
+      sales: 0,
+      revenue: 0,
+      profit: 0,
+      multSum: 0,
+      multCount: 0,
+      daysSum: 0,
+      daysCount: 0,
+    };
+    bucket.sales += 1;
+    bucket.revenue += s.soldPrice;
+    bucket.profit += s.netProfit;
+    if (s.item.purchasePrice > 0) {
+      bucket.multSum += s.soldPrice / s.item.purchasePrice - 1;
+      bucket.multCount += 1;
+    }
+    if (s.item.createdAt && s.soldAt) {
+      const days =
+        (new Date(s.soldAt).getTime() - new Date(s.item.createdAt).getTime()) / 86400000;
+      if (days >= 0) {
+        bucket.daysSum += days;
+        bucket.daysCount += 1;
+      }
+    }
+    map.set(key, bucket);
+  }
+
+  // Stock encore présent
+  const stockMap = new Map<string, number>();
+  for (const s of stock) {
+    const key = `${s.category ?? "Sans catégorie"}::${s.subcategory ?? ""}`;
+    stockMap.set(key, (stockMap.get(key) ?? 0) + s._count);
+  }
+  // Ajout des entrées qui n'ont aucune vente mais ont du stock
+  for (const [key, count] of stockMap.entries()) {
+    if (!map.has(key)) {
+      const [cat, sub] = key.split("::");
+      map.set(key, {
+        category: cat || "Sans catégorie",
+        subcategory: sub || null,
+        sales: 0,
+        revenue: 0,
+        profit: 0,
+        multSum: 0,
+        multCount: 0,
+        daysSum: 0,
+        daysCount: 0,
+      });
+    }
+  }
+
+  const result: CategoryStat[] = [];
+  for (const [key, b] of map.entries()) {
+    result.push({
+      category: b.category,
+      subcategory: b.subcategory,
+      sales: b.sales,
+      revenue: round2(b.revenue),
+      profit: round2(b.profit),
+      avgMultiplier: b.multCount > 0 ? b.multSum / b.multCount : 0,
+      avgDaysToSell: b.daysCount > 0 ? b.daysSum / b.daysCount : null,
+      stockListed: stockMap.get(key) ?? 0,
+    });
+  }
+
+  return result;
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }

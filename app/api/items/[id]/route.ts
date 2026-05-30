@@ -7,6 +7,7 @@ const PatchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   brand: z.string().max(80).nullable().optional(),
   category: z.string().max(80).nullable().optional(),
+  subcategory: z.string().max(120).nullable().optional(),
   size: z.string().max(40).nullable().optional(),
   condition: z.string().max(60).nullable().optional(),
   purchasePrice: z.number().min(0).optional(),
