@@ -117,7 +117,7 @@ export default async function AdminDashboard() {
         />
         <KpiCard
           label="Multiplicateur moyen"
-          value={multi.multiplier > 0 ? `×${multi.multiplier.toFixed(2)}` : "—"}
+          value={multi.multiplier > 1 ? `×${(multi.multiplier - 1).toFixed(2)}` : "—"}
           hint={
             multi.sales > 0
               ? `${eur(multi.totalPurchase)} → ${eur(multi.totalSold)}`
@@ -267,7 +267,7 @@ export default async function AdminDashboard() {
                     <td className="px-4 py-2 text-muted">{s.reseller.name ?? s.reseller.email}</td>
                     <td className="px-4 py-2 text-right tabular-nums">{eur(s.soldPrice)}</td>
                     <td className="px-4 py-2 text-right tabular-nums text-success">
-                      {mult > 0 ? `×${mult.toFixed(2)}` : "—"}
+                      {mult > 1 ? `×${(mult - 1).toFixed(2)}` : "—"}
                     </td>
                     <td className="px-4 py-2 text-right tabular-nums font-medium">{eur(s.netProfit)}</td>
                   </tr>

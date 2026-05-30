@@ -152,7 +152,7 @@ export function SupplyCard({
       {err && <div className="text-xs text-danger mb-2">{err}</div>}
 
       <div className="text-xs text-muted border-t border-subtle/60 pt-2">
-        Coût unitaire {eur(supply.unitCost)} · délai {supply.restockLeadDays}j · marge {supply.safetyMarginDays}j
+        Coût total stock {eur(supply.quantity * supply.unitCost)} · délai {supply.restockLeadDays}j · marge {supply.safetyMarginDays}j
         {supply.lastRestockedAt && <> · racheté {dateFr(supply.lastRestockedAt)}</>}
       </div>
 

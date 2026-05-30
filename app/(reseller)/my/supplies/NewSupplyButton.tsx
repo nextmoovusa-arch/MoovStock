@@ -20,12 +20,15 @@ export function NewSupplyButton() {
     type: "POUCH",
     name: "",
     quantity: 0,
-    unitCost: 0,
+    totalCost: 0, // saisi par l'utilisateur
     restockLeadDays: 3,
     safetyMarginDays: 2,
     restockThreshold: 0,
     useAutoThreshold: true,
   });
+
+  // Coût unitaire calculé automatiquement
+  const unitCost = form.quantity > 0 ? form.totalCost / form.quantity : 0;
 
   async function submit() {
     setLoading(true);
@@ -37,7 +40,7 @@ export function NewSupplyButton() {
         type: form.type,
         name: form.name || null,
         quantity: form.quantity,
-        unitCost: form.unitCost,
+        unitCost: unitCost,
         restockLeadDays: form.restockLeadDays,
         safetyMarginDays: form.safetyMarginDays,
         restockThreshold: form.useAutoThreshold ? null : form.restockThreshold,
@@ -90,8 +93,15 @@ export function NewSupplyButton() {
                   className="w-full rounded-md border border-input px-2 py-1.5"
                 />
               </label>
-              <Num label="Quantité actuelle" value={form.quantity} onChange={(v) => setForm({ ...form, quantity: v })} />
-              <Num label="Coût unitaire (€)" value={form.unitCost} onChange={(v) => setForm({ ...form, unitCost: v })} step={0.01} />
+              <Num label="Quantité" value={form.quantity} onChange={(v) => setForm({ ...form, quantity: v })} />
+              <Num label="Coût total payé (€)" value={form.totalCost} onChange={(v) => setForm({ ...form, totalCost: v })} step={0.01} />
+
+              <div className="col-span-2 rounded-md border border-accent/20 bg-accent/5 px-3 py-2 text-xs flex justify-between items-center">
+                <span className="text-muted">Coût unitaire calculé :</span>
+                <span className="text-accent font-medium tabular-nums">
+                  {unitCost > 0 ? `${unitCost.toFixed(4)} €/u` : "—"}
+                </span>
+              </div>
               <Num label="Délai livraison (j)" value={form.restockLeadDays} onChange={(v) => setForm({ ...form, restockLeadDays: v })} />
               <Num label="Marge sécurité (j)" value={form.safetyMarginDays} onChange={(v) => setForm({ ...form, safetyMarginDays: v })} />
 
