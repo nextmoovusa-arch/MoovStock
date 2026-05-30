@@ -97,34 +97,34 @@ export default async function MySalesPage({
         <KpiCard
           label="Chiffre d'affaires"
           animateValue={totalRevenue}
-          format={(n) => eur(n)}
+          format="eur"
           delay={0}
         />
         <KpiCard
           label="Bénéfice brut"
           animateValue={totalGross}
-          format={(n) => eur(n)}
+          format="eur"
           tone="positive"
           delay={60}
         />
         <KpiCard
           label="Ma commission"
           animateValue={totalPayout}
-          format={(n) => eur(n)}
+          format="eur"
           tone="positive"
           delay={120}
         />
         <KpiCard
           label="À recevoir"
           animateValue={owed}
-          format={(n) => eur(n)}
+          format="eur"
           tone="warning"
           delay={180}
         />
         <KpiCard
           label="Panier moyen"
           animateValue={avgBasket}
-          format={(n) => eur(n)}
+          format="eur"
           delay={220}
         />
       </div>

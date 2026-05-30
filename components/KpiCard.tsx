@@ -1,11 +1,22 @@
 import { cn } from "@/lib/utils";
 import { Sparkline } from "./Sparkline";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { eur } from "@/lib/format";
+
+type FormatType = "number" | "eur" | "percent";
+
+function formatValue(n: number, type: FormatType): string {
+  if (type === "eur") return eur(n);
+  if (type === "percent") return `${(n * 100).toFixed(0)} %`;
+  return Math.round(n).toString();
+}
 
 /**
- * KpiCard.
- * Si `animateValue` est fourni (number), affiche un compteur animé formaté
- * via `format`. Sinon affiche `value` (string) directement.
+ * KpiCard (Server Component).
+ * - `value` (string)  → affiché tel quel
+ * - `animateValue` (number) → compteur animé via AnimatedNumber (Client).
+ *   La mise en forme est faite côté Client à partir de `format` (string,
+ *   pas fonction — Server → Client interdit pour les fonctions).
  */
 export function KpiCard({
   label,
@@ -15,7 +26,7 @@ export function KpiCard({
   spark,
   delay = 0,
   animateValue,
-  format,
+  format = "number",
 }: {
   label: string;
   value?: string;
@@ -24,7 +35,7 @@ export function KpiCard({
   spark?: number[];
   delay?: number;
   animateValue?: number;
-  format?: (n: number) => string;
+  format?: FormatType;
 }) {
   const sparkColor =
     tone === "positive" ? "rgb(52 211 153)" :
@@ -49,10 +60,7 @@ export function KpiCard({
         )}
       >
         {animateValue !== undefined ? (
-          <AnimatedNumber
-            value={animateValue}
-            format={format ?? ((n) => Math.round(n).toString())}
-          />
+          <AnimatedNumber value={animateValue} format={format} />
         ) : (
           value
         )}
@@ -66,3 +74,5 @@ export function KpiCard({
     </div>
   );
 }
+
+export { formatValue };

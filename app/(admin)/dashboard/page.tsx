@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
         <KpiCard
           label="CA 30 jours"
           animateValue={sales30._sum.soldPrice ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           hint={`${sales30._count} ventes`}
           tone="positive"
           spark={revenueSpark}
@@ -84,7 +84,7 @@ export default async function AdminDashboard() {
         <KpiCard
           label="Profit net 30 j"
           animateValue={sales30._sum.netProfit ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           tone="positive"
           spark={profitSpark}
           delay={180}
@@ -95,21 +95,21 @@ export default async function AdminDashboard() {
         <KpiCard
           label="CA cumulé total"
           animateValue={salesAll._sum.soldPrice ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           hint={`${salesAll._count} ventes au total`}
           delay={220}
         />
         <KpiCard
           label="Profit net total"
           animateValue={salesAll._sum.netProfit ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           spark={salesSpark}
           delay={280}
         />
         <KpiCard
           label="À verser aux revendeurs"
           animateValue={pendingPayouts._sum.resellerPayout ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           tone="warning"
           delay={340}
         />

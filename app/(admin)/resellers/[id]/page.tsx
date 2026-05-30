@@ -122,21 +122,21 @@ export default async function ResellerDetail({
         <KpiCard
           label="CA 30 j"
           animateValue={sales30._sum.soldPrice ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           hint={`${sales30._count} ventes`}
           delay={0}
         />
         <KpiCard
           label="Ma part 30 j"
           animateValue={sales30._sum.netProfit ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           tone="positive"
           delay={60}
         />
         <KpiCard
           label="À lui verser"
           animateValue={owed._sum.resellerPayout ?? 0}
-          format={(n) => eur(n)}
+          format="eur"
           tone="warning"
           delay={120}
         />
