@@ -36,11 +36,11 @@ export default async function ResellerLayout({ children }: { children: React.Rea
         userLabel={user.name ?? user.email}
         badges={{ dailyLogPending: !todayLog, suppliesAlert }}
       />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-w-0">
         {impersonation.isImpersonating && impersonation.user && (
           <ImpersonationBanner label={impersonation.user.name ?? impersonation.user.email} />
         )}
-        <div className="flex-1 p-8">{children}</div>
+        <div className="flex-1 p-4 pt-16 md:p-8 md:pt-8 min-w-0">{children}</div>
       </main>
     </div>
   );

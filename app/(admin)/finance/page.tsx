@@ -93,7 +93,7 @@ export default async function FinancePage() {
               <span className="text-muted-strong">Clique sur « Transaction » pour en ajouter.</span>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
               <thead className="text-left text-xs uppercase text-muted bg-surface-2">
                 <tr>
                   <th className="px-4 py-2">Date</th>
@@ -129,7 +129,7 @@ export default async function FinancePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </section>
 

@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           debts: debtsAgg._sum.resellerPayout ?? 0,
         }}
       />
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 p-4 pt-16 md:p-8 md:pt-8 min-w-0">{children}</main>
     </div>
   );
 }

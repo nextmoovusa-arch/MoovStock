@@ -44,8 +44,12 @@ async function getClerkDbUser(): Promise<User | null> {
     return user;
   }
 
-  const userCount = await prisma.user.count();
-  const role: Role = userCount === 0 ? "ADMIN" : "RESELLER";
+  // Compte uniquement les admins "réels" (avec clerkId).
+  // Le User placeholder créé pendant la période sans-auth ne compte pas.
+  const realAdminCount = await prisma.user.count({
+    where: { role: "ADMIN", clerkId: { not: null } },
+  });
+  const role: Role = realAdminCount === 0 ? "ADMIN" : "RESELLER";
 
   user = await prisma.user.create({
     data: {

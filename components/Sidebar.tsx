@@ -6,6 +6,7 @@ import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { eur } from "@/lib/format";
 import { LiveDot } from "./LiveDot";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -16,6 +17,8 @@ import {
   Boxes,
   Bell,
   BarChart3,
+  Menu,
+  X,
 } from "lucide-react";
 
 type Item = {
@@ -78,9 +81,44 @@ export function Sidebar({
   ];
 
   const items = variant === "admin" ? ADMIN_ITEMS : RESELLER_ITEMS;
+  const [open, setOpen] = useState(false);
 
   return (
-    <aside className="w-64 shrink-0 bg-surface/80 backdrop-blur border-r border-subtle flex flex-col">
+    <>
+      {/* Hamburger mobile */}
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Menu"
+        className="md:hidden fixed top-3 left-3 z-30 size-10 rounded-lg bg-surface border border-subtle flex items-center justify-center hover:bg-surface-2 shadow-lg"
+      >
+        <Menu className="size-5" />
+      </button>
+
+      {/* Backdrop mobile */}
+      {open && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-backdrop-in"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={cn(
+          "w-64 shrink-0 bg-surface/95 backdrop-blur border-r border-subtle flex flex-col",
+          "fixed inset-y-0 left-0 z-50 transition-transform",
+          "md:static md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        )}
+      >
+        {/* Close button mobile */}
+        <button
+          onClick={() => setOpen(false)}
+          aria-label="Fermer"
+          className="md:hidden absolute top-3 right-3 size-8 rounded-md hover:bg-surface-2 flex items-center justify-center"
+        >
+          <X className="size-4" />
+        </button>
+
       <div className="px-5 py-5 border-b border-subtle">
         <div className="flex items-center gap-2">
           <div className="size-8 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
@@ -103,6 +141,7 @@ export function Sidebar({
             <Link
               key={it.href}
               href={it.href}
+              onClick={() => setOpen(false)}
               className={cn(
                 "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition relative",
                 active
@@ -143,5 +182,6 @@ export function Sidebar({
         </div>
       </div>
     </aside>
+    </>
   );
 }

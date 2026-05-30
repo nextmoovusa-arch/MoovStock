@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { PaymentStatusBadge } from "@/components/StatusBadge";
 import { eur, dateFr } from "@/lib/format";
+import { SaleActions } from "./SaleActions";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +131,7 @@ export default async function MySalesPage({
       </div>
 
       <div className="rounded-xl border border-subtle bg-surface overflow-hidden animate-fade-in">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
           <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Date</th>
@@ -139,6 +140,7 @@ export default async function MySalesPage({
               <th className="px-4 py-2 text-right">Profit brut</th>
               <th className="px-4 py-2 text-right">Ma commission</th>
               <th className="px-4 py-2">Paiement</th>
+              <th className="px-4 py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -155,17 +157,20 @@ export default async function MySalesPage({
                 <td className="px-4 py-3 text-right tabular-nums">{eur(s.grossProfit)}</td>
                 <td className="px-4 py-3 text-right tabular-nums font-medium">{eur(s.resellerPayout)}</td>
                 <td className="px-4 py-3"><PaymentStatusBadge status={s.paymentStatus} /></td>
+                <td className="px-4 py-3 text-right">
+                  <SaleActions saleId={s.id} initial={{ soldPrice: s.soldPrice }} />
+                </td>
               </tr>
             ))}
             {sales.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted">
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted">
                   Aucune vente sur cette période.
                 </td>
               </tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </>
   );

@@ -28,7 +28,7 @@ export default async function ResellersPage() {
       />
 
       <div className="rounded-xl border border-subtle bg-surface overflow-hidden animate-fade-in">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
           <thead className="text-left text-xs uppercase text-muted bg-surface-2">
             <tr>
               <th className="px-4 py-2">Revendeur</th>
@@ -93,7 +93,7 @@ export default async function ResellersPage() {
               </tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </>
   );

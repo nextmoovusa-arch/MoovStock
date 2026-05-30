@@ -188,7 +188,7 @@ export default async function ResellerDetail({
           {items.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted">Aucun article.</div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
               <thead className="text-left text-xs uppercase text-muted bg-surface-2">
                 <tr>
                   <th className="px-4 py-2">Article</th>
@@ -210,7 +210,7 @@ export default async function ResellerDetail({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </section>
 
@@ -221,7 +221,7 @@ export default async function ResellerDetail({
           {recentSales.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted">Aucune vente.</div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
               <thead className="text-left text-xs uppercase text-muted bg-surface-2">
                 <tr>
                   <th className="px-4 py-2">Vendu le</th>
@@ -240,7 +240,7 @@ export default async function ResellerDetail({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </section>
       </div>
