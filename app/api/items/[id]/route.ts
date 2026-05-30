@@ -15,6 +15,7 @@ const PatchSchema = z.object({
   vintedUrl: z.string().url().or(z.literal("")).nullable().optional(),
   status: z.enum(["IN_STOCK", "LISTED", "RETURNED", "LOST"]).optional(),
   notes: z.string().max(2000).nullable().optional(),
+  republish: z.boolean().optional(), // remet listedAt à now sans toucher au statut
 });
 
 async function loadOwned(id: string, userId: string, isAdmin: boolean) {
@@ -36,15 +37,19 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const json = await req.json().catch(() => null);
   const parsed = PatchSchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+  const { republish, ...rest } = parsed.data;
+
+  // Republier : on rafraîchit la date de mise en ligne, statut LISTED
+  const nowListed =
+    republish ||
+    (parsed.data.status === "LISTED" && item.status !== "LISTED");
 
   const updated = await prisma.item.update({
     where: { id },
     data: {
-      ...parsed.data,
-      listedAt:
-        parsed.data.status === "LISTED" && !item.listedAt
-          ? new Date()
-          : item.listedAt,
+      ...rest,
+      ...(republish ? { status: "LISTED" as const } : {}),
+      listedAt: nowListed ? new Date() : item.listedAt,
     },
   });
   return NextResponse.json({ item: updated });

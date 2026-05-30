@@ -4,34 +4,55 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "@/lib/toast";
 
+const CATEGORIES = [
+  "Femmes",
+  "Hommes",
+  "Enfants",
+  "Chaussures",
+  "Sacs",
+  "Accessoires",
+  "Bijoux",
+  "Beauté",
+  "Maison",
+  "Électronique",
+  "Sport & Loisirs",
+  "Livres & Jeux",
+  "Autre",
+];
+
 export function NewItemForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [customListing, setCustomListing] = useState(false);
   const [form, setForm] = useState({
     title: "",
     brand: "",
-    category: "",
-    size: "",
-    condition: "",
+    category: "Femmes",
     purchasePrice: 0,
     listingPrice: 0,
-    photoUrl: "",
-    vintedUrl: "",
-    status: "IN_STOCK" as "IN_STOCK" | "LISTED",
-    notes: "",
     quantity: 1,
   });
+
+  const suggested = +(form.purchasePrice * 2).toFixed(2);
+  const effectiveListing = customListing ? form.listingPrice : suggested;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setErr(null);
-    const suggested = +(form.purchasePrice * 2).toFixed(2);
     const res = await fetch("/api/items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, listingPrice: suggested }),
+      body: JSON.stringify({
+        title: form.title,
+        brand: form.brand || null,
+        category: form.category,
+        purchasePrice: form.purchasePrice,
+        listingPrice: effectiveListing,
+        quantity: form.quantity,
+        status: "IN_STOCK",
+      }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -56,41 +77,99 @@ export function NewItemForm() {
 
   return (
     <form onSubmit={submit} className="space-y-4 text-sm">
-      <Row>
-        <Field label="Titre *" required value={form.title} onChange={(v) => set("title", v)} />
-      </Row>
-      <Row cols={3}>
-        <Field label="Marque" value={form.brand} onChange={(v) => set("brand", v)} />
-        <Field label="Catégorie" value={form.category} onChange={(v) => set("category", v)} />
-        <Field label="Taille" value={form.size} onChange={(v) => set("size", v)} />
-      </Row>
-      <Row cols={2}>
-        <Field label="État" value={form.condition} onChange={(v) => set("condition", v)} placeholder="Très bon état" />
-        <SelectField
-          label="Statut initial"
-          value={form.status}
-          onChange={(v) => set("status", v as typeof form.status)}
-          options={[
-            { v: "IN_STOCK", l: "En stock (pas encore listé)" },
-            { v: "LISTED", l: "Déjà en ligne sur Vinted" },
-          ]}
+      <div>
+        <span className="block text-xs text-muted mb-1">Nom *</span>
+        <input
+          type="text"
+          required
+          autoFocus
+          value={form.title}
+          onChange={(e) => set("title", e.target.value)}
+          placeholder="Ex: Jean Levis 501"
+          className="w-full rounded-md border border-input px-3 py-2"
         />
-      </Row>
-      <Row cols={3}>
-        <NumField label="Prix d'achat unitaire (€) *" required value={form.purchasePrice} onChange={(v) => set("purchasePrice", v)} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <span className="block text-xs text-muted mb-1">Prix conseillé (×2)</span>
-          <div className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 tabular-nums text-success font-medium">
-            {(form.purchasePrice * 2).toFixed(2)} €
-          </div>
+          <span className="block text-xs text-muted mb-1">Marque</span>
+          <input
+            type="text"
+            value={form.brand}
+            onChange={(e) => set("brand", e.target.value)}
+            placeholder="Ex: Levis"
+            className="w-full rounded-md border border-input px-3 py-2"
+          />
         </div>
-        <NumField
-          label="Quantité"
-          step={1}
-          value={form.quantity}
-          onChange={(v) => set("quantity", Math.max(1, Math.min(500, Math.round(v))))}
-        />
-      </Row>
+        <div>
+          <span className="block text-xs text-muted mb-1">Catégorie</span>
+          <select
+            value={form.category}
+            onChange={(e) => set("category", e.target.value)}
+            className="w-full rounded-md border border-input px-3 py-2 bg-surface"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <span className="block text-xs text-muted mb-1">Prix unitaire (€) *</span>
+          <input
+            type="number"
+            required
+            step="0.01"
+            min="0"
+            value={form.purchasePrice}
+            onChange={(e) => set("purchasePrice", parseFloat(e.target.value) || 0)}
+            className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
+          />
+        </div>
+        <div>
+          <span className="flex items-center justify-between text-xs text-muted mb-1">
+            <span>Prix revente (€)</span>
+            <button
+              type="button"
+              onClick={() => {
+                setCustomListing((v) => !v);
+                if (!customListing) set("listingPrice", suggested);
+              }}
+              className="text-[10px] text-accent hover:underline"
+            >
+              {customListing ? "auto ×2" : "personnaliser"}
+            </button>
+          </span>
+          {customListing ? (
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.listingPrice}
+              onChange={(e) => set("listingPrice", parseFloat(e.target.value) || 0)}
+              className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
+            />
+          ) : (
+            <div className="w-full rounded-md border border-accent/30 bg-accent/5 px-3 py-2 tabular-nums text-success font-medium">
+              {suggested.toFixed(2)} €
+            </div>
+          )}
+        </div>
+        <div>
+          <span className="block text-xs text-muted mb-1">Quantité</span>
+          <input
+            type="number"
+            min="1"
+            max="500"
+            step="1"
+            value={form.quantity}
+            onChange={(e) => set("quantity", Math.max(1, Math.min(500, parseInt(e.target.value || "1", 10))))}
+            className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
+          />
+        </div>
+      </div>
 
       {form.quantity > 1 && (
         <div className="rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-muted">
@@ -103,26 +182,12 @@ export function NewItemForm() {
             <>
               {" · "}revenu potentiel :{" "}
               <span className="text-success font-medium tabular-nums">
-                {(form.purchasePrice * 2 * form.quantity).toFixed(2)} €
+                {(effectiveListing * form.quantity).toFixed(2)} €
               </span>
             </>
           )}
         </div>
       )}
-
-      <Row cols={2}>
-        <Field label="URL photo" value={form.photoUrl} onChange={(v) => set("photoUrl", v)} placeholder="https://..." />
-        <Field label="URL annonce Vinted" value={form.vintedUrl} onChange={(v) => set("vintedUrl", v)} placeholder="https://www.vinted.fr/..." />
-      </Row>
-      <label>
-        <span className="block text-xs text-muted mb-1">Notes</span>
-        <textarea
-          rows={3}
-          value={form.notes}
-          onChange={(e) => set("notes", e.target.value)}
-          className="w-full rounded-md border border-input px-3 py-2"
-        />
-      </label>
 
       {err && <div className="text-danger">{err}</div>}
 
@@ -135,76 +200,12 @@ export function NewItemForm() {
           Annuler
         </button>
         <button
-          disabled={loading || !form.title || form.purchasePrice < 0}
-          className="rounded-md bg-accent text-on-accent px-4 py-2 font-medium hover:bg-accent-strong disabled:opacity-50"
+          disabled={loading || !form.title || form.purchasePrice <= 0}
+          className="rounded-md bg-accent text-on-accent px-4 py-2 font-medium hover:bg-accent-strong disabled:opacity-50 active:scale-[0.98] transition-transform"
         >
           {loading ? "..." : "Enregistrer"}
         </button>
       </div>
     </form>
-  );
-}
-
-function Row({ children, cols = 1 }: { children: React.ReactNode; cols?: 1 | 2 | 3 }) {
-  const g = cols === 1 ? "grid-cols-1" : cols === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-3";
-  return <div className={`grid ${g} gap-3`}>{children}</div>;
-}
-
-function Field({
-  label, value, onChange, required, placeholder,
-}: { label: string; value: string; onChange: (v: string) => void; required?: boolean; placeholder?: string }) {
-  return (
-    <label>
-      <span className="block text-xs text-muted mb-1">{label}</span>
-      <input
-        type="text"
-        required={required}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-input px-3 py-2"
-      />
-    </label>
-  );
-}
-
-function NumField({
-  label, value, onChange, required, step = 0.01,
-}: { label: string; value: number; onChange: (v: number) => void; required?: boolean; step?: number }) {
-  const isInt = step === 1;
-  return (
-    <label>
-      <span className="block text-xs text-muted mb-1">{label}</span>
-      <input
-        type="number"
-        step={step}
-        min="0"
-        required={required}
-        value={value}
-        onChange={(e) =>
-          onChange(isInt ? parseInt(e.target.value || "0", 10) || 0 : parseFloat(e.target.value) || 0)
-        }
-        className="w-full rounded-md border border-input px-3 py-2 tabular-nums"
-      />
-    </label>
-  );
-}
-
-function SelectField({
-  label, value, onChange, options,
-}: { label: string; value: string; onChange: (v: string) => void; options: { v: string; l: string }[] }) {
-  return (
-    <label>
-      <span className="block text-xs text-muted mb-1">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-input px-3 py-2 bg-surface"
-      >
-        {options.map((o) => (
-          <option key={o.v} value={o.v}>{o.l}</option>
-        ))}
-      </select>
-    </label>
   );
 }

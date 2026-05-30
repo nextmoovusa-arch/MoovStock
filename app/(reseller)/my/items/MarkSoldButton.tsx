@@ -4,6 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 
+const CONDITIONS = [
+  "Neuf avec étiquette",
+  "Neuf sans étiquette",
+  "Très bon état",
+  "Bon état",
+  "Satisfaisant",
+];
+
 export function MarkSoldButton({
   itemId,
   suggested,
@@ -21,12 +29,7 @@ export function MarkSoldButton({
   const [err, setErr] = useState<string | null>(null);
   const [form, setForm] = useState({
     soldPrice: suggested || 0,
-    vintedFee: 0,
-    pouchCost: pouchCost,
-    labelCost: labelCost,
-    otherCost: 0,
-    shippingFee: 0,
-    buyerCountry: "FR",
+    condition: "Très bon état",
   });
 
   async function submit() {
@@ -35,7 +38,17 @@ export function MarkSoldButton({
     const res = await fetch("/api/sales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId, ...form }),
+      body: JSON.stringify({
+        itemId,
+        soldPrice: form.soldPrice,
+        condition: form.condition,
+        // Frais déduits automatiquement côté serveur depuis les supplies
+        pouchCost,
+        labelCost,
+        vintedFee: 0,
+        otherCost: 0,
+        shippingFee: 0,
+      }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -46,15 +59,17 @@ export function MarkSoldButton({
     }
     setOpen(false);
     setLoading(false);
-    toast.success("Vente enregistrée", `Article vendu ${form.soldPrice.toFixed(2)} €`);
+    toast.success("Vente enregistrée", `${form.soldPrice.toFixed(2)} € · ${form.condition}`);
     router.refresh();
   }
+
+  const totalFees = pouchCost + labelCost;
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs font-medium rounded-md bg-accent text-on-accent px-2 py-1 hover:bg-accent-strong"
+        className="text-xs font-medium rounded-md bg-accent text-on-accent px-2 py-1 hover:bg-accent-strong transition-transform active:scale-95"
       >
         Vendu
       </button>
@@ -62,48 +77,58 @@ export function MarkSoldButton({
       {open && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-backdrop-in">
           <div className="bg-surface border border-subtle rounded-xl shadow-2xl w-full max-w-md p-5 animate-slide-up">
-            <h3 className="font-semibold mb-3">Marquer comme vendu</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <Field label="Prix vendu (€)" value={form.soldPrice} onChange={(v) => setForm({ ...form, soldPrice: v })} />
-              <Field label="Frais Vinted (€)" value={form.vintedFee} onChange={(v) => setForm({ ...form, vintedFee: v })} />
-              <Field
-                label="Pochette (€)"
-                value={form.pouchCost}
-                onChange={(v) => setForm({ ...form, pouchCost: v })}
-                hint={pouchCost > 0 ? "auto · coût unitaire stock" : "ajoute des pochettes dans Stock conso."}
-              />
-              <Field
-                label="Étiquette (€)"
-                value={form.labelCost}
-                onChange={(v) => setForm({ ...form, labelCost: v })}
-                hint={labelCost > 0 ? "auto · coût unitaire stock" : "ajoute des étiquettes dans Stock conso."}
-              />
-              <Field label="Autres frais (€)" value={form.otherCost} onChange={(v) => setForm({ ...form, otherCost: v })} />
-              <Field label="Port acheteur (€)" value={form.shippingFee} onChange={(v) => setForm({ ...form, shippingFee: v })} />
-              <label className="col-span-2">
-                <span className="block text-xs text-muted mb-1">Pays acheteur</span>
+            <h3 className="font-semibold mb-4">Marquer comme vendu</h3>
+
+            <div className="space-y-4 text-sm">
+              <div>
+                <span className="block text-xs text-muted mb-1">Prix vendu TTC (€)</span>
                 <input
-                  type="text"
-                  value={form.buyerCountry}
-                  onChange={(e) => setForm({ ...form, buyerCountry: e.target.value.toUpperCase() })}
-                  className="w-full rounded-md border-input border px-2 py-1.5"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  autoFocus
+                  value={form.soldPrice || ""}
+                  onChange={(e) => setForm({ ...form, soldPrice: parseFloat(e.target.value) || 0 })}
+                  className="w-full rounded-md border border-input px-3 py-2 text-lg tabular-nums font-medium"
                 />
-              </label>
+              </div>
+
+              <div>
+                <span className="block text-xs text-muted mb-1">État de l&apos;article</span>
+                <select
+                  value={form.condition}
+                  onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                  className="w-full rounded-md border border-input px-3 py-2 bg-surface"
+                >
+                  {CONDITIONS.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              {totalFees > 0 && (
+                <div className="rounded-md border border-accent/20 bg-accent/5 px-3 py-2 text-xs text-muted flex justify-between">
+                  <span>Frais consommables auto :</span>
+                  <span className="text-foreground tabular-nums font-medium">
+                    pochette {pouchCost.toFixed(2)}€ · étiquette {labelCost.toFixed(2)}€
+                  </span>
+                </div>
+              )}
             </div>
 
-            {err && <div className="mt-3 text-sm text-danger">{err}</div>}
+            {err && <div className="mt-3 text-danger text-xs">{err}</div>}
 
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-1.5 text-sm hover:bg-surface-2"
+                className="rounded-md px-3 py-1.5 text-sm hover:bg-surface-2 transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={submit}
                 disabled={loading || form.soldPrice <= 0}
-                className="rounded-md bg-accent text-on-accent px-3 py-1.5 text-sm font-medium hover:bg-accent-strong disabled:opacity-50"
+                className="rounded-md bg-accent text-on-accent px-4 py-1.5 text-sm font-medium hover:bg-accent-strong disabled:opacity-50 active:scale-[0.98] transition-transform"
               >
                 {loading ? "..." : "Confirmer"}
               </button>
@@ -112,32 +137,5 @@ export function MarkSoldButton({
         </div>
       )}
     </>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  hint,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  hint?: string;
-}) {
-  return (
-    <label>
-      <span className="block text-xs text-muted mb-1">{label}</span>
-      <input
-        type="number"
-        step="0.01"
-        min="0"
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-md border-input border px-2 py-1.5 tabular-nums"
-      />
-      {hint && <span className="block text-[10px] text-accent mt-0.5">{hint}</span>}
-    </label>
   );
 }

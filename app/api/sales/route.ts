@@ -15,6 +15,7 @@ const CreateSaleSchema = z.object({
   buyerCountry: z.string().max(2).optional().nullable(),
   soldAt: z.string().datetime().optional(),
   notes: z.string().max(2000).optional().nullable(),
+  condition: z.string().max(60).optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -75,7 +76,11 @@ export async function POST(req: Request) {
     });
     await tx.item.update({
       where: { id: item.id },
-      data: { status: "SOLD", soldAt: created.soldAt },
+      data: {
+        status: "SOLD",
+        soldAt: created.soldAt,
+        condition: d.condition || item.condition,
+      },
     });
     return created;
   });
